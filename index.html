@@ -210,7 +210,7 @@
           <div class="form-group w-160">
             <label data-i18n="labelTransport">Transport Cost</label>
             <div class="input-unit">
-              <input type="number" id="transportCost" placeholder="e.g. 200" min="0" step="1" oninput="recalcOrderTotal();recalcDeposit();updateStats();">
+              <input type="number" id="transportCost" placeholder="e.g. -100 for discount" min="-999999" step="1" oninput="recalcOrderTotal();recalcDeposit();updateStats();">
               <span class="unit-suffix">z&#322;</span>
             </div>
           </div>
@@ -623,7 +623,8 @@
       for (var i = 0; i < ids.length; i++) {
         total += parseFloat(document.getElementById('lineTotal-' + ids[i]).value) || 0;
       }
-      total += parseFloat(document.getElementById('transportCost').value) || 0;
+      var tcRaw = document.getElementById('transportCost').value;
+      total += tcRaw !== '' ? (parseFloat(tcRaw) || 0) : 0;
       document.getElementById('orderTotalDisplay').textContent = fmtCurrency(total);
       return total;
     }
@@ -696,7 +697,8 @@
         rows[j].orderId = orderId; rows[j].orderTotal = orderTotal;
         rows[j].deposit = deposit; rows[j].paymentMethod = paymentMethod;
         rows[j].toCollect = balance;
-        rows[j].transportCost = parseFloat(document.getElementById('transportCost').value) || 0;
+        var tcVal = document.getElementById('transportCost').value;
+        rows[j].transportCost = tcVal !== '' ? (parseFloat(tcVal) || 0) : 0;
       }
 
       var submitEl   = document.getElementById('submitBtn');
