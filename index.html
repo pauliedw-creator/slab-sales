@@ -206,14 +206,14 @@
     <div class="card">
       <div class="order-total-bar">
         <span class="order-total-label" data-i18n="orderTotalLabel">Order Total</span>
-        <span class="order-total-value" id="orderTotalDisplay">0.00 z&#322;</span>
+        <span class="order-total-value" id="orderTotalDisplay">0 z&#322;</span>
       </div>
       <div class="deposit-section">
         <div class="deposit-row">
           <div class="form-group w-160">
             <label data-i18n="labelDeposit">Deposit Taken</label>
             <div class="input-unit">
-              <input type="number" id="depositAmount" placeholder="0.00" min="0" step="0.01" oninput="recalcDeposit()">
+              <input type="number" id="depositAmount" placeholder="e.g. 500" min="0" step="1" oninput="recalcDeposit()">
               <span class="unit-suffix">z&#322;</span>
             </div>
           </div>
@@ -234,7 +234,7 @@
       </div>
       <div class="collect-bar">
         <span class="collect-label" data-i18n="balanceLabel">Balance to Collect</span>
-        <span class="collect-value" id="balanceDisplay">0.00 z&#322;</span>
+        <span class="collect-value" id="balanceDisplay">0 z&#322;</span>
       </div>
     </div>
 
@@ -491,23 +491,23 @@
         '</div>' +
         '<div class="form-row">' +
           '<div class="form-group w-100"><label id="lbl-length-' + id + '">' + t('labelLength') + '</label>' +
-            '<input type="number" id="length-' + id + '" placeholder="260" min="0" step="0.1" oninput="recalcLine(' + id + ')"></div>' +
+            '<input type="number" id="length-' + id + '" placeholder="e.g. 260" min="0" step="1" oninput="recalcLine(' + id + ')"></div>' +
           '<div class="form-group w-100"><label id="lbl-width-' + id + '">' + t('labelWidth') + '</label>' +
-            '<input type="number" id="width-' + id + '" placeholder="130" min="0" step="0.1" oninput="recalcLine(' + id + ')"></div>' +
+            '<input type="number" id="width-' + id + '" placeholder="e.g. 130" min="0" step="1" oninput="recalcLine(' + id + ')"></div>' +
           '<div class="form-group w-90"><label id="lbl-thickness-' + id + '">' + t('labelThickness') + '</label>' +
-            '<input type="number" id="thickness-' + id + '" placeholder="2" min="0" step="0.1" oninput="updateStats()"></div>' +
+            '<input type="number" id="thickness-' + id + '" placeholder="e.g. 2" min="0" step="1" oninput="updateStats()"></div>' +
           '<div class="form-group w-100"><label id="lbl-area-' + id + '">' + t('labelArea') + '</label>' +
             '<div class="calc-display empty" id="area-' + id + '">\u2014</div></div>' +
         '</div>' +
         '<div class="form-row" style="margin-bottom:0;">' +
           '<div class="form-group w-120"><label id="lbl-priceM2-' + id + '">' + t('labelPriceM2') + '</label>' +
-            '<div class="input-unit"><input type="number" id="priceM2-' + id + '" placeholder="0.00" min="0" step="0.01" oninput="recalcLine(' + id + ')">' +
+            '<div class="input-unit"><input type="number" id="priceM2-' + id + '" placeholder="e.g. 150" min="0" step="1" oninput="recalcLine(' + id + ')">' +
             '<span class="unit-suffix">z\u0142</span></div></div>' +
           '<div class="form-group grow">' +
             '<label><span id="lbl-lineTotal-' + id + '">' + t('labelLineTotal') + '</span>&nbsp;' +
               '<span class="override-badge hidden" id="badge-' + id + '">' + t('overrideBadge') + '</span></label>' +
             '<div style="display:flex;gap:6px;align-items:center;">' +
-              '<div class="input-unit" style="flex:1;"><input type="number" id="lineTotal-' + id + '" placeholder="0.00" min="0" step="0.01" oninput="onLineTotalEdit(' + id + ')">' +
+              '<div class="input-unit" style="flex:1;"><input type="number" id="lineTotal-' + id + '" placeholder="e.g. 500" min="0" step="1" oninput="onLineTotalEdit(' + id + ')">' +
               '<span class="unit-suffix">z\u0142</span></div>' +
               '<button class="btn-reset" id="lbl-btnReset-' + id + '" onclick="resetLineTotal(' + id + ')" title="Reset to calculated value">' + t('btnReset') + '</button>' +
             '</div>' +
@@ -564,7 +564,7 @@
       lineState[id].suggested = suggested;
 
       if (!lineState[id].touched && suggested !== null) {
-        document.getElementById('lineTotal-' + id).value = suggested.toFixed(2);
+        document.getElementById('lineTotal-' + id).value = suggested;
       }
       updateOverrideBadge(id);
       recalcOrderTotal();
@@ -846,7 +846,7 @@
 
     // ─── HELPERS ─────────────────────────────────────────────────────────────
     function todayISO() { return new Date().toISOString().slice(0, 10); }
-    function fmtCurrency(val) { return val.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' z\u0142'; }
+    function fmtCurrency(val) { return Math.ceil(val).toLocaleString('en-GB') + ' z\u0142'; }
     function fmtDate(isoStr) {
       if (!isoStr) { return '\u2014'; }
       var d = new Date(isoStr);
