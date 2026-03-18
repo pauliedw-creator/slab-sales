@@ -204,6 +204,24 @@
     </button>
 
     <div class="card">
+      <div class="card-title" data-i18n="transportTitle">Transport</div>
+      <div class="card-body" style="padding-bottom:18px;">
+        <div class="form-row" style="margin-bottom:0;">
+          <div class="form-group w-160">
+            <label data-i18n="labelTransport">Transport Cost</label>
+            <div class="input-unit">
+              <input type="number" id="transportCost" placeholder="e.g. 200" min="0" step="1" oninput="recalcOrderTotal();recalcDeposit();updateStats();">
+              <span class="unit-suffix">z&#322;</span>
+            </div>
+          </div>
+          <div class="form-group grow" style="justify-content:flex-end;">
+            <div style="font-size:11px;color:var(--text-muted);padding-bottom:9px;" data-i18n="transportHint">Included in order total</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
       <div class="order-total-bar">
         <span class="order-total-label" data-i18n="orderTotalLabel">Order Total</span>
         <span class="order-total-value" id="orderTotalDisplay">0 z&#322;</span>
@@ -296,6 +314,9 @@
         btnReset: 'Reset',
         btnRemove: 'Remove',
         addSlabBtn: 'Add another slab',
+        transportTitle: 'Transport',
+        labelTransport: 'Transport Cost',
+        transportHint: 'Included in order total',
         orderTotalLabel: 'Order Total',
         labelDeposit: 'Deposit Taken',
         labelPaymentMethod: 'Payment Method',
@@ -347,6 +368,9 @@
         btnReset: 'Resetuj',
         btnRemove: 'Usu\u0144',
         addSlabBtn: 'Dodaj kolejn\u0105 p\u0142yt\u0119',
+        transportTitle: 'Transport',
+        labelTransport: 'Koszt transportu',
+        transportHint: 'Wliczony w sum\u0119 zam\u00f3wienia',
         orderTotalLabel: 'Suma zam\u00f3wienia',
         labelDeposit: 'Pobrana zaliczka',
         labelPaymentMethod: 'Metoda p\u0142atno\u015bci',
@@ -599,6 +623,7 @@
       for (var i = 0; i < ids.length; i++) {
         total += parseFloat(document.getElementById('lineTotal-' + ids[i]).value) || 0;
       }
+      total += parseFloat(document.getElementById('transportCost').value) || 0;
       document.getElementById('orderTotalDisplay').textContent = fmtCurrency(total);
       return total;
     }
@@ -671,6 +696,7 @@
         rows[j].orderId = orderId; rows[j].orderTotal = orderTotal;
         rows[j].deposit = deposit; rows[j].paymentMethod = paymentMethod;
         rows[j].toCollect = balance;
+        rows[j].transportCost = parseFloat(document.getElementById('transportCost').value) || 0;
       }
 
       var submitEl   = document.getElementById('submitBtn');
@@ -705,6 +731,7 @@
       document.getElementById('saleDate').value      = todayISO();
       var radios = document.querySelectorAll('input[name="paymentMethod"]');
       if (radios[0]) { radios[0].checked = true; }
+      document.getElementById('transportCost').value = '';
       document.getElementById('lineItemsContainer').innerHTML = '';
       lineCounter = 0; lineState = {};
       addLine(); recalcDeposit();
