@@ -577,7 +577,7 @@
       var areaEl     = document.getElementById('area-' + id);
 
       if (areaSqM > 0) {
-        areaEl.textContent = areaSqM.toFixed(3) + ' m\u00b2';
+        areaEl.textContent = areaSqM.toFixed(2) + ' m\u00b2';
         areaEl.classList.remove('empty');
       } else {
         areaEl.textContent = '\u2014';
@@ -678,10 +678,10 @@
         rows.push({
           saleDate: saleDate, customerName: customerName, slabName: slabName,
           itemName: itemName,
-          length:    rowLength,
-          width:     rowWidth,
-          thickness: parseFloat(document.getElementById('thickness-' + id).value) || 0,
-          areaSqM:   (rowLength > 0 && rowWidth > 0) ? parseFloat(((rowLength * rowWidth) / 10000).toFixed(4)) : 0,
+          length:    Math.round(rowLength),
+          width:     Math.round(rowWidth),
+          thickness: Math.round(parseFloat(document.getElementById('thickness-' + id).value) || 0),
+          areaSqM:   (rowLength > 0 && rowWidth > 0) ? parseFloat(((rowLength * rowWidth) / 10000).toFixed(2)) : 0,
           pricePerM2: parseFloat(document.getElementById('priceM2-'  + id).value) || 0,
           lineTotal: lineTotal, orderNotes: orderNotes
         });
@@ -789,9 +789,10 @@
         rows.push({
           timestamp: parseGvizDate(cell(0)), orderId: cell(1),
           saleDate: parseGvizDate(cell(2)), customerName: cell(3), slabName: cell(4),
-          length: cell(5), width: cell(6), thickness: cell(7), areaSqM: cell(8), pricePerM2: cell(9),
-          lineTotal: cell(10), orderTotal: cell(11), deposit: cell(12),
-          paymentMethod: cell(13), toCollect: cell(14), orderNotes: cell(15)
+          itemName: cell(5),
+          length: cell(6), width: cell(7), thickness: cell(8), areaSqM: cell(9), pricePerM2: cell(10),
+          lineTotal: cell(11), orderTotal: cell(12), transportCost: cell(13),
+          deposit: cell(14), paymentMethod: cell(15), toCollect: cell(16), orderNotes: cell(17)
         });
       }
       return rows;
@@ -829,9 +830,9 @@
         html += '<td>' + fmtDate(r.saleDate) + '</td>';
         html += '<td>' + esc(r.customerName) + '</td>';
         html += '<td>' + esc(r.slabName) + '</td>';
-        html += '<td>' + (r.length && r.width ? r.length + '&times;' + r.width : '\u2014') + '</td>';
-        html += '<td>' + (r.thickness ? r.thickness + ' cm' : '\u2014') + '</td>';
-        html += '<td>' + (r.areaSqM ? parseFloat(r.areaSqM).toFixed(3) + ' m\u00b2' : '\u2014') + '</td>';
+        html += '<td>' + (r.length && r.width ? Math.round(r.length) + '&times;' + Math.round(r.width) : '\u2014') + '</td>';
+        html += '<td>' + (r.thickness ? Math.round(r.thickness) + ' cm' : '\u2014') + '</td>';
+        html += '<td>' + (r.areaSqM ? parseFloat(r.areaSqM).toFixed(2) + ' m\u00b2' : '\u2014') + '</td>';
         html += '<td>' + (r.pricePerM2 ? fmtCurrency(parseFloat(r.pricePerM2)) : '\u2014') + '</td>';
         html += '<td style="font-weight:500;">' + (r.lineTotal ? fmtCurrency(parseFloat(r.lineTotal)) : '\u2014') + '</td>';
         html += '<td>' + (isNew && r.deposit ? fmtCurrency(parseFloat(r.deposit)) : '') + '</td>';
