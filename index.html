@@ -152,6 +152,42 @@
     .payment-tag.cash { background: #f0f8f4; color: var(--success); border: 1px solid #b8e4c8; }
     .payment-tag.bank { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
 
+    /* HISTORY ORDER CARDS */
+    .order-card { border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px; overflow: hidden; }
+    .order-card-header {
+      display: flex; align-items: center; gap: 12px; padding: 10px 16px;
+      background: #faf9f7; cursor: pointer; user-select: none;
+      transition: background 0.15s;
+    }
+    .order-card-header:hover { background: #f4f1eb; }
+    .order-card-header.expanded { background: #f4f1eb; border-bottom: 1px solid var(--border); }
+    .och-ref { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); background: #e8e3db; padding: 2px 7px; border-radius: 2px; white-space: nowrap; flex-shrink: 0; }
+    .och-date { font-size: 12px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+    .och-customer { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .och-slabs { font-size: 11px; color: var(--text-muted); white-space: nowrap; flex-shrink: 0; }
+    .och-total { font-size: 14px; font-weight: 500; color: var(--gold); white-space: nowrap; flex-shrink: 0; margin-left: auto; }
+    .och-chevron { font-size: 9px; color: var(--text-muted); transition: transform 0.2s; flex-shrink: 0; margin-left: 8px; }
+    .och-chevron.open { transform: rotate(180deg); }
+
+    .order-card-body { display: none; }
+    .order-card-body.open { display: block; }
+
+    .order-slabs-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    .order-slabs-table th { font-size: 9px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); font-weight: 500; padding: 6px 14px; text-align: left; border-bottom: 1px solid #f0ece6; background: #fdfcfa; white-space: nowrap; }
+    .order-slabs-table td { padding: 7px 14px; border-bottom: 1px solid #f0ece6; color: var(--text); vertical-align: middle; }
+    .order-slabs-table tr:last-child td { border-bottom: none; }
+
+    .order-card-footer {
+      display: grid; grid-template-columns: repeat(5, 1fr);
+      gap: 0; border-top: 1px solid var(--border); background: #faf9f7;
+    }
+    .ocf-item { padding: 10px 14px; border-right: 1px solid #f0ece6; }
+    .ocf-item:last-child { border-right: none; }
+    .ocf-label { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 4px; }
+    .ocf-value { font-size: 13px; font-weight: 500; color: var(--text); }
+    .ocf-value.gold { color: var(--gold); }
+    .ocf-value.muted { color: var(--text-muted); font-weight: 400; font-size: 12px; }
+
     /* RESPONSIVE */
     @media (max-width: 700px) {
       .nav-brand { display: none; }
@@ -398,6 +434,7 @@
         historyTimeout: 'Timed out. Check sheet access.',
         historyFail: 'Failed to load. Check sheet is shared as Viewer.',
         hOrder: 'Order', hDate: 'Date', hCustomer: 'Customer', hSlab: 'Slab',
+        hTransport: 'Transport', hDiscount: 'Discount',
         hDims: 'Dims (cm)', hThick: 'Thick.', hArea: 'Area',
         hPriceM2: 'Price/m\u00b2', hLine: 'Line Total', hDeposit: 'Deposit',
         hPayment: 'Payment', hTotal: 'Order Total',
@@ -463,6 +500,7 @@
         historyTimeout: 'Przekroczono czas. Sprawd\u017a dost\u0119p do arkusza.',
         historyFail: 'B\u0142\u0105d \u0142adowania. Sprawd\u017a udost\u0119pnienie arkusza.',
         hOrder: 'Zam\u00f3wienie', hDate: 'Data', hCustomer: 'Klient', hSlab: 'P\u0142yta',
+        hTransport: 'Transport', hDiscount: 'Rabat',
         hDims: 'Wym. (cm)', hThick: 'Grub.', hArea: 'Pow.',
         hPriceM2: 'Cena/m\u00b2', hLine: 'Suma linii', hDeposit: 'Zaliczka',
         hPayment: 'P\u0142atno\u015b\u0107', hTotal: 'Suma',
@@ -926,6 +964,16 @@
       return rows;
     }
 
+    function toggleOrderCard(id) {
+      var body = document.getElementById('ocb-' + id);
+      var chev = document.getElementById('occ-' + id);
+      var hdr  = document.getElementById('och-' + id);
+      if (!body) { return; }
+      var open = body.classList.toggle('open');
+      chev.classList.toggle('open', open);
+      hdr.classList.toggle('expanded', open);
+    }
+
     function renderHistoryTable(rows) {
       var content = document.getElementById('historyContent');
       document.getElementById('historyCount').textContent = rows.length;
@@ -933,42 +981,90 @@
         content.innerHTML = '<p style="color:var(--text-muted);font-size:12px;padding:8px 0;">' + t('historyNone') + '</p>';
         return;
       }
-      var seenOrders = {};
-      var html = '<div class="history-table-wrap"><table><thead><tr>' +
-        '<th>' + t('hOrder')    + '</th><th>' + t('hDate')     + '</th>' +
-        '<th>' + t('hCustomer') + '</th><th>' + t('hSlab')     + '</th>' +
-        '<th>' + t('hDims')     + '</th><th>' + t('hThick')    + '</th>' +
-        '<th>' + t('hArea')     + '</th><th>' + t('hPriceM2')  + '</th>' +
-        '<th>' + t('hLine')     + '</th><th>' + t('hDeposit')  + '</th>' +
-        '<th>' + t('hPayment')  + '</th><th>' + t('hTotal')    + '</th>' +
-        '</tr></thead><tbody>';
 
-      var reversed = rows.slice().reverse();
+      // Group rows by orderId, preserving reverse-chronological order
+      var orderIds  = [];
+      var orderMap  = {};
+      var reversed  = rows.slice().reverse();
       for (var i = 0; i < reversed.length; i++) {
-        var r = reversed[i];
-        var isNew = !seenOrders[r.orderId];
-        seenOrders[r.orderId] = true;
-        var pmVal = String(r.paymentMethod || '').toLowerCase();
-        var pmCls = pmVal.indexOf('bank') !== -1 ? 'bank' : 'cash';
-        var pmText = r.paymentMethod
-          ? (pmVal.indexOf('bank') !== -1 ? t('paymentBank') : t('paymentCash')) : '';
-        var rowCls = (isNew && i > 0) ? ' class="order-break"' : '';
-        html += '<tr' + rowCls + '>';
-        html += '<td>' + (isNew ? '<span class="order-ref">' + esc(r.orderId || '\u2014') + '</span>' : '') + '</td>';
-        html += '<td>' + fmtDate(r.saleDate) + '</td>';
-        html += '<td>' + esc(r.customerName) + '</td>';
-        html += '<td>' + esc(r.slabName) + '</td>';
-        html += '<td>' + (r.length && r.width ? Math.round(r.length) + '&times;' + Math.round(r.width) : '\u2014') + '</td>';
-        html += '<td>' + (r.thickness ? Math.round(r.thickness) + ' cm' : '\u2014') + '</td>';
-        html += '<td>' + (r.areaSqM ? parseFloat(r.areaSqM).toFixed(2) + ' m\u00b2' : '\u2014') + '</td>';
-        html += '<td>' + (r.pricePerM2 ? fmtCurrency(parseFloat(r.pricePerM2)) : '\u2014') + '</td>';
-        html += '<td style="font-weight:500;">' + (r.lineTotal ? fmtCurrency(parseFloat(r.lineTotal)) : '\u2014') + '</td>';
-        html += '<td>' + (isNew && r.deposit ? fmtCurrency(parseFloat(r.deposit)) : '') + '</td>';
-        html += '<td>' + (isNew && pmText ? '<span class="payment-tag ' + pmCls + '">' + pmText + '</span>' : '') + '</td>';
-        html += '<td style="color:var(--gold);font-weight:500;">' + (isNew && r.orderTotal ? fmtCurrency(parseFloat(r.orderTotal)) : '') + '</td>';
-        html += '</tr>';
+        var r  = reversed[i];
+        var oid = r.orderId || ('_' + i);
+        if (!orderMap[oid]) {
+          orderMap[oid] = { meta: r, lines: [] };
+          orderIds.push(oid);
+        }
+        orderMap[oid].lines.push(r);
       }
-      html += '</tbody></table></div>';
+
+      var html = '';
+      for (var o = 0; o < orderIds.length; o++) {
+        var oid   = orderIds[o];
+        var order = orderMap[oid];
+        var meta  = order.meta;
+        var lines = order.lines;
+        var cardId = 'oc' + o;
+
+        var pmVal  = String(meta.paymentMethod || '').toLowerCase();
+        var pmText = meta.paymentMethod
+          ? (pmVal.indexOf('bank') !== -1 ? t('paymentBank') : t('paymentCash')) : '—';
+        var pmCls  = pmVal.indexOf('bank') !== -1 ? 'bank' : 'cash';
+
+        // Card header
+        html += '<div class="order-card">';
+        html += '<div class="order-card-header" id="och-' + cardId + '" onclick="toggleOrderCard(\\x27' + cardId + '\\x27)">';
+        html += '<span class="och-ref">' + esc(oid) + '</span>';
+        html += '<span class="och-date">' + fmtDate(meta.saleDate) + '</span>';
+        html += '<span class="och-customer">' + esc(meta.customerName) + '</span>';
+        html += '<span class="och-slabs">' + lines.length + ' slab' + (lines.length > 1 ? 's' : '') + '</span>';
+        html += '<span class="och-total">' + (meta.orderTotal ? fmtCurrency(parseFloat(meta.orderTotal)) : '—') + '</span>';
+        html += '<span class="och-chevron" id="occ-' + cardId + '">▼</span>';
+        html += '</div>';
+
+        // Card body
+        html += '<div class="order-card-body" id="ocb-' + cardId + '">';
+
+        // Slab lines mini-table
+        html += '<table class="order-slabs-table"><thead><tr>';
+        html += '<th>' + t('hSlab') + '</th>';
+        html += '<th>' + t('hDims') + '</th>';
+        html += '<th>' + t('hThick') + '</th>';
+        html += '<th>' + t('hArea') + '</th>';
+        html += '<th>' + t('hPriceM2') + '</th>';
+        html += '<th>' + t('hLine') + '</th>';
+        html += '</tr></thead><tbody>';
+
+        for (var l = 0; l < lines.length; l++) {
+          var ln = lines[l];
+          html += '<tr>';
+          html += '<td>' + esc(ln.slabName || ln.itemName || '—') + '</td>';
+          html += '<td>' + (ln.length && ln.width ? Math.round(ln.length) + '×' + Math.round(ln.width) + ' cm' : '—') + '</td>';
+          html += '<td>' + (ln.thickness ? Math.round(ln.thickness) + ' cm' : '—') + '</td>';
+          html += '<td>' + (ln.areaSqM ? parseFloat(ln.areaSqM).toFixed(2) + ' m²' : '—') + '</td>';
+          html += '<td>' + (ln.pricePerM2 ? fmtCurrency(parseFloat(ln.pricePerM2)) : '—') + '</td>';
+          html += '<td style="font-weight:500;">' + (ln.lineTotal ? fmtCurrency(parseFloat(ln.lineTotal)) : '—') + '</td>';
+          html += '</tr>';
+        }
+        html += '</tbody></table>';
+
+        // Order footer — transport, discount, deposit, payment, balance
+        var transportVal = meta.transportCost ? fmtCurrency(parseFloat(meta.transportCost)) : '—';
+        var discountVal  = meta.discountZl && parseFloat(meta.discountZl) > 0
+          ? '−' + fmtCurrency(parseFloat(meta.discountZl)) + (meta.discountLabel ? ' (' + esc(meta.discountLabel) + ')' : '')
+          : '—';
+        var depositVal   = meta.deposit ? fmtCurrency(parseFloat(meta.deposit)) : '—';
+        var balanceVal   = meta.toCollect ? fmtCurrency(parseFloat(meta.toCollect)) : '—';
+
+        html += '<div class="order-card-footer">';
+        html += '<div class="ocf-item"><div class="ocf-label">' + t('hTransport') + '</div><div class="ocf-value">' + transportVal + '</div></div>';
+        html += '<div class="ocf-item"><div class="ocf-label">' + t('hDiscount') + '</div><div class="ocf-value' + (meta.discountZl && parseFloat(meta.discountZl) > 0 ? '" style="color:var(--error)' : ' muted') + '">' + discountVal + '</div></div>';
+        html += '<div class="ocf-item"><div class="ocf-label">' + t('hDeposit') + '</div><div class="ocf-value">' + depositVal + '</div></div>';
+        html += '<div class="ocf-item"><div class="ocf-label">' + t('hPayment') + '</div><div class="ocf-value"><span class="payment-tag ' + pmCls + '">' + pmText + '</span></div></div>';
+        html += '<div class="ocf-item"><div class="ocf-label">' + t('balanceLabel') + '</div><div class="ocf-value gold">' + balanceVal + '</div></div>';
+        html += '</div>';
+
+        html += '</div></div>'; // close body + card
+      }
+
       content.innerHTML = html;
     }
 
