@@ -268,8 +268,8 @@
   </div>
 
   <script>
-    var SHEET_ID   = 'YOUR_SHEET_ID_HERE';
-    var SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+    var SHEET_ID   = '10bgaGSin8ccRQVVHTMgQIoI8Kesqjtf_UKm6GJPLH2g';
+    var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySHiIOvCeyeB7KePXA2L2u3Q2FyMSIlaNPB76k78Yp_AVT8Ah5f7PoiGwxdyEv9SZLcg/exec';
     var LOGO_B64   = 'data:image/png;base64,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';
 
     // ─── TRANSLATIONS ────────────────────────────────────────────────────────
@@ -645,15 +645,19 @@
         if (!slabName)     { setStatus('error', t('errNoSlab').replace('{n}',  i + 1)); valid = false; break; }
         if (lineTotal <= 0){ setStatus('error', t('errNoTotal').replace('{n}', i + 1)); valid = false; break; }
 
+        var rowLength = parseFloat(document.getElementById('length-' + id).value) || 0;
+        var rowWidth  = parseFloat(document.getElementById('width-'  + id).value) || 0;
+        var dimStr    = (rowLength > 0 && rowWidth > 0) ? ' - ' + rowLength + 'cm x ' + rowWidth + 'cm' : '';
+        var itemName  = slabName + dimStr;
+
         rows.push({
           saleDate: saleDate, customerName: customerName, slabName: slabName,
-          length:    parseFloat(document.getElementById('length-'    + id).value) || 0,
-          width:     parseFloat(document.getElementById('width-'     + id).value) || 0,
+          itemName: itemName,
+          length:    rowLength,
+          width:     rowWidth,
           thickness: parseFloat(document.getElementById('thickness-' + id).value) || 0,
-          areaSqM:   (function(l, w){ return (l > 0 && w > 0) ? parseFloat(((l * w) / 10000).toFixed(4)) : 0; })(
-            parseFloat(document.getElementById('length-' + id).value) || 0,
-            parseFloat(document.getElementById('width-'  + id).value) || 0),
-          pricePerM2: parseFloat(document.getElementById('priceM2-'   + id).value) || 0,
+          areaSqM:   (rowLength > 0 && rowWidth > 0) ? parseFloat(((rowLength * rowWidth) / 10000).toFixed(4)) : 0,
+          pricePerM2: parseFloat(document.getElementById('priceM2-'  + id).value) || 0,
           lineTotal: lineTotal, orderNotes: orderNotes
         });
       }
