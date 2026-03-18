@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GLG — Slab Sales</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #edeae4; --surface: #fff; --border: #dbd6ce;
+      --nav: #1a1a18; --gold: #c9a84c; --gold-dark: #b8860b; --gold-light: #e8c96a;
+      --nav-divider: #3a3830; --nav-sub: #6a6050;
+      --text: #2c2c2c; --text-muted: #888; --text-faint: #bbb;
+      --success: #2d7a4a; --success-bg: #e8f7ee; --success-border: #b8e4c8;
+      --error: #c0392b; --error-bg: #fde8e8; --error-border: #f0b8b8;
+      --info: #4a6abf; --info-bg: #f0f4ff; --info-border: #c0ccf0;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text); background: var(--bg); min-height: 100vh; }
+
+    /* NAV */
+    nav { background: var(--nav); height: 48px; display: flex; align-items: center; padding: 0 16px; position: sticky; top: 0; z-index: 100; }
+    .nav-logo { display: flex; align-items: center; }
+    .nav-logo img { height: 36px; }
+    .nav-divider { width: 1px; height: 24px; background: var(--nav-divider); margin: 0 14px; }
+    .nav-brand { color: var(--gold); font-size: 13px; font-weight: 500; letter-spacing: 0.04em; }
+    .nav-sub { color: var(--nav-sub); font-size: 11px; margin-left: 8px; }
+    .nav-spacer { flex: 1; }
+    .lang-toggle { display: flex; gap: 2px; }
+    .btn-lang { background: none; border: 1px solid var(--nav-divider); border-radius: 3px; padding: 4px 9px; font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 500; color: var(--nav-sub); cursor: pointer; letter-spacing: 0.06em; transition: all 0.15s; }
+    .btn-lang.active { background: var(--gold); border-color: var(--gold); color: #1a1a18; }
+    .btn-lang:not(.active):hover { border-color: #6a6050; color: #a09070; }
+
+    /* LAYOUT */
+    .container { max-width: 1080px; margin: 0 auto; padding: 0 16px; }
+
+    /* STAT CARDS */
+    .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 16px 0 10px; }
+    .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 14px 18px; }
+    .stat-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-faint); margin-bottom: 6px; }
+    .stat-value { font-size: 24px; font-weight: 500; color: #1a1a18; line-height: 1; }
+    .stat-value.gold { color: var(--gold); }
+
+    /* CARDS */
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 10px; }
+    .card-title { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); padding: 12px 22px 0; }
+    .card-body { padding: 14px 22px 24px; }
+
+    /* FORM */
+    .form-row { display: flex; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; align-items: flex-end; }
+    .form-row:last-child { margin-bottom: 0; }
+    .form-group { display: flex; flex-direction: column; gap: 5px; }
+    .form-group.grow { flex: 1; min-width: 140px; }
+    .form-group.w-160 { width: 160px; flex-shrink: 0; }
+    .form-group.w-120 { width: 120px; flex-shrink: 0; }
+    .form-group.w-100 { width: 100px; flex-shrink: 0; }
+    .form-group.w-90  { width: 90px;  flex-shrink: 0; }
+    label { font-size: 9px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    input[type=text], input[type=number], input[type=date], select { border: 1px solid var(--border); border-radius: 3px; padding: 7px 10px; font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text); background: #fff; outline: none; transition: border-color 0.15s; width: 100%; }
+    input:focus, select:focus { border-color: var(--gold); }
+    .input-unit { position: relative; display: flex; align-items: center; }
+    .input-unit input { padding-right: 32px; }
+    .unit-suffix { position: absolute; right: 9px; font-size: 11px; color: var(--text-muted); pointer-events: none; }
+
+    /* CALC DISPLAY */
+    .calc-display { display: flex; align-items: center; padding: 7px 10px; background: #f8f6f2; border: 1px solid var(--border); border-radius: 3px; font-size: 13.5px; font-weight: 500; color: var(--info); min-height: 34px; white-space: nowrap; }
+    .calc-display.empty { color: var(--text-faint); font-weight: 400; }
+
+    /* OVERRIDE BADGE */
+    .override-badge { display: inline-flex; align-items: center; background: #fff4e0; border: 1px solid #f0c060; color: #a06000; font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 7px; border-radius: 3px; font-weight: 500; }
+    .override-badge.hidden { display: none; }
+    .btn-reset { background: none; border: 1px solid var(--border); border-radius: 3px; padding: 5px 10px; font-size: 11px; color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; white-space: nowrap; flex-shrink: 0; }
+    .btn-reset:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+    /* LINE ITEM CARDS */
+    .line-item-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 8px; }
+    .line-item-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 22px; border-bottom: 1px solid #f0ece6; background: #faf9f7; border-radius: 4px 4px 0 0; }
+    .line-item-num { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); font-weight: 500; }
+    .btn-remove-line { background: none; border: 1px solid #e0d8cf; border-radius: 3px; padding: 3px 10px; font-size: 11px; color: var(--error); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
+    .btn-remove-line:hover { background: var(--error-bg); border-color: var(--error); }
+    .line-item-body { padding: 14px 22px 18px; }
+
+    /* ADD LINE */
+    .btn-add-line { display: flex; align-items: center; gap: 8px; background: none; border: 1px dashed #c8c0b6; border-radius: 4px; padding: 12px 22px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; width: 100%; transition: all 0.15s; margin-bottom: 10px; }
+    .btn-add-line:hover { border-color: var(--gold); color: var(--gold-dark); background: #faf7f0; border-style: solid; }
+    .btn-add-plus { font-size: 18px; line-height: 1; color: var(--gold); }
+
+    /* ORDER TOTAL + DEPOSIT */
+    .order-total-bar { display: flex; align-items: center; justify-content: space-between; padding: 16px 22px; border-bottom: 1px solid #f0ece6; }
+    .order-total-label { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+    .order-total-value { font-size: 28px; font-weight: 500; color: #1a1a18; }
+    .deposit-section { padding: 16px 22px 16px; border-bottom: 1px solid #f0ece6; }
+    .deposit-row { display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap; }
+    .collect-bar { display: flex; align-items: center; justify-content: space-between; padding: 14px 22px; }
+    .collect-label { font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-muted); }
+    .collect-value { font-size: 20px; font-weight: 500; color: var(--gold); }
+
+    /* PAYMENT PILLS */
+    .payment-pills { display: flex; gap: 6px; }
+    .payment-pills input[type=radio] { display: none; }
+    .payment-pill { border: 1px solid var(--border); border-radius: 3px; padding: 6px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; user-select: none; white-space: nowrap; display: block; }
+    .payment-pills input[type=radio]:checked + .payment-pill { background: #f0f8f4; border-color: #2d7a4a; color: var(--success); font-weight: 500; }
+    .payment-pill:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+    /* SUBMIT */
+    .btn-submit { width: 100%; background: var(--gold); border: none; border-radius: 3px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; }
+    .btn-submit:hover { background: var(--gold-light); }
+    .btn-submit:disabled { background: var(--border); color: var(--text-muted); cursor: not-allowed; }
+    .status-msg { border-radius: 3px; padding: 10px 14px; font-size: 13px; margin-bottom: 10px; display: none; }
+
+    /* HISTORY */
+    .history-header { display: flex; align-items: center; gap: 10px; padding: 12px 22px; cursor: pointer; user-select: none; }
+    .history-header:hover { background: #faf9f7; border-radius: 4px; }
+    .history-title { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); flex: 1; }
+    .history-count { background: var(--gold); color: #1a1a18; font-size: 10px; font-weight: 500; padding: 1px 8px; border-radius: 10px; min-width: 24px; text-align: center; }
+    .history-chevron { font-size: 10px; color: var(--text-muted); transition: transform 0.2s; }
+    .history-chevron.open { transform: rotate(180deg); }
+    .history-body { display: none; padding: 0 22px 18px; border-top: 1px solid var(--border); }
+    .history-body.open { display: block; }
+    .history-controls { display: flex; gap: 8px; padding: 12px 0 10px; }
+    .btn-sm { background: none; border: 1px solid var(--border); border-radius: 3px; padding: 5px 12px; font-family: 'DM Sans', sans-serif; font-size: 11px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; }
+    .btn-sm:hover { border-color: var(--gold); color: var(--gold-dark); }
+    .history-table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); font-weight: 500; padding: 6px 10px; text-align: left; border-bottom: 1px solid var(--border); background: #faf9f7; white-space: nowrap; }
+    td { padding: 7px 10px; border-bottom: 1px solid #f0ece6; color: var(--text); vertical-align: middle; }
+    tr:last-child td { border-bottom: none; }
+    tr.order-break td { border-top: 2px solid var(--border); }
+    tr:hover td { background: #faf9f7; }
+    .order-ref { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--text-muted); background: #f0ece6; padding: 2px 6px; border-radius: 2px; white-space: nowrap; }
+    .payment-tag { font-size: 10px; padding: 2px 7px; border-radius: 3px; font-weight: 500; }
+    .payment-tag.cash { background: #f0f8f4; color: var(--success); border: 1px solid #b8e4c8; }
+    .payment-tag.bank { background: var(--info-bg); color: var(--info); border: 1px solid var(--info-border); }
+
+    /* RESPONSIVE */
+    @media (max-width: 700px) {
+      .nav-brand { display: none; }
+      .form-group.w-160, .form-group.w-120, .form-group.w-100, .form-group.w-90 { flex: 1; width: auto; }
+      th:nth-child(n+8), td:nth-child(n+8) { display: none; }
+    }
+    @media (max-width: 400px) {
+      .stat-value { font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <div class="nav-logo"><img id="navLogo" src="" alt="GLG"></div>
+    <div class="nav-divider"></div>
+    <span class="nav-brand">Golden Leaf Granit</span>
+    <span class="nav-sub" data-i18n="navSub">Slab Sales</span>
+    <div class="nav-spacer"></div>
+    <div class="lang-toggle">
+      <button class="btn-lang active" id="btnEN" onclick="setLang('EN')">EN</button>
+      <button class="btn-lang"        id="btnPL" onclick="setLang('PL')">PL</button>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label" data-i18n="statLinesLabel">Lines in Order</div>
+        <div class="stat-value" id="statLines">1</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label" data-i18n="statTotalLabel">Order Total</div>
+        <div class="stat-value gold" id="statTotal">&#8212;</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" data-i18n="orderDetailsTitle">Order Details</div>
+      <div class="card-body">
+        <div class="form-row">
+          <div class="form-group grow">
+            <label data-i18n="labelCustomer">Customer Name</label>
+            <input type="text" id="customerName" list="customerList"
+              data-i18n-ph="phCustomer" placeholder="Start typing customer name&#8230;" autocomplete="off">
+            <datalist id="customerList"></datalist>
+          </div>
+          <div class="form-group w-120">
+            <label data-i18n="labelSaleDate">Sale Date</label>
+            <input type="date" id="saleDate">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group grow">
+            <label data-i18n="labelOrderNotes">Order Notes</label>
+            <input type="text" id="orderNotes"
+              data-i18n-ph="phOrderNotes" placeholder="Delivery instructions, special requirements&#8230;">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="lineItemsContainer"></div>
+
+    <button class="btn-add-line" onclick="addLine()">
+      <span class="btn-add-plus">+</span>
+      <span data-i18n="addSlabBtn">Add another slab</span>
+    </button>
+
+    <div class="card">
+      <div class="order-total-bar">
+        <span class="order-total-label" data-i18n="orderTotalLabel">Order Total</span>
+        <span class="order-total-value" id="orderTotalDisplay">0.00 z&#322;</span>
+      </div>
+      <div class="deposit-section">
+        <div class="deposit-row">
+          <div class="form-group w-160">
+            <label data-i18n="labelDeposit">Deposit Taken</label>
+            <div class="input-unit">
+              <input type="number" id="depositAmount" placeholder="0.00" min="0" step="0.01" oninput="recalcDeposit()">
+              <span class="unit-suffix">z&#322;</span>
+            </div>
+          </div>
+          <div class="form-group grow">
+            <label data-i18n="labelPaymentMethod">Payment Method</label>
+            <div class="payment-pills">
+              <label>
+                <input type="radio" name="paymentMethod" value="Cash" checked onchange="recalcDeposit()">
+                <span class="payment-pill" data-i18n="paymentCash">Cash</span>
+              </label>
+              <label>
+                <input type="radio" name="paymentMethod" value="Bank Transfer" onchange="recalcDeposit()">
+                <span class="payment-pill" data-i18n="paymentBank">Bank Transfer</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="collect-bar">
+        <span class="collect-label" data-i18n="balanceLabel">Balance to Collect</span>
+        <span class="collect-value" id="balanceDisplay">0.00 z&#322;</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" data-i18n="saveCardTitle">Save to Google Sheet</div>
+      <div class="card-body">
+        <div class="status-msg" id="statusMsg"></div>
+        <button class="btn-submit" id="submitBtn" onclick="submitOrder()">
+          <span data-i18n="submitBtn">Accept &amp; Submit</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:32px;">
+      <div class="history-header" onclick="toggleHistory()">
+        <span class="history-title" data-i18n="historyTitle">Submission History</span>
+        <span class="history-count" id="historyCount">&#8212;</span>
+        <span class="history-chevron" id="historyChevron">&#9660;</span>
+      </div>
+      <div class="history-body" id="historyBody">
+        <div class="history-controls">
+          <button class="btn-sm" onclick="fetchAndRenderHistory()" data-i18n="btnRefresh">Refresh</button>
+          <button class="btn-sm" onclick="clearHistoryCache()" data-i18n="btnClearCache">Clear local cache</button>
+        </div>
+        <div id="historyContent">
+          <p style="color:var(--text-muted);font-size:12px;" data-i18n="historyEmpty">Click Refresh to load history.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    var SHEET_ID   = 'YOUR_SHEET_ID_HERE';
+    var SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';
+    var LOGO_B64   = 'data:image/png;base64,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';
+
+    // ─── TRANSLATIONS ────────────────────────────────────────────────────────
+    var T = {
+      EN: {
+        navSub: 'Slab Sales',
+        statLinesLabel: 'Lines in Order',
+        statTotalLabel: 'Order Total',
+        orderDetailsTitle: 'Order Details',
+        labelCustomer: 'Customer Name',
+        phCustomer: 'Start typing customer name\u2026',
+        labelSaleDate: 'Sale Date',
+        labelOrderNotes: 'Order Notes',
+        phOrderNotes: 'Delivery instructions, special requirements\u2026',
+        slabCardLabel: 'SLAB',
+        labelSlabName: 'Slab Name',
+        labelLength: 'Length (cm)',
+        labelWidth: 'Width (cm)',
+        labelThickness: 'Thickness (cm)',
+        labelArea: 'Area (m\u00b2)',
+        labelPriceM2: 'Price per m\u00b2',
+        labelLineTotal: 'Line Total',
+        overrideBadge: 'Override',
+        btnReset: 'Reset',
+        btnRemove: 'Remove',
+        addSlabBtn: 'Add another slab',
+        orderTotalLabel: 'Order Total',
+        labelDeposit: 'Deposit Taken',
+        labelPaymentMethod: 'Payment Method',
+        paymentCash: 'Cash',
+        paymentBank: 'Bank Transfer',
+        balanceLabel: 'Balance to Collect',
+        saveCardTitle: 'Save to Google Sheet',
+        submitBtn: 'Accept & Submit',
+        historyTitle: 'Submission History',
+        btnRefresh: 'Refresh',
+        btnClearCache: 'Clear local cache',
+        historyEmpty: 'Click Refresh to load history.',
+        historyLoading: 'Loading\u2026',
+        historyNone: 'No records found.',
+        historyError: 'Error parsing history.',
+        historyTimeout: 'Timed out. Check sheet access.',
+        historyFail: 'Failed to load. Check sheet is shared as Viewer.',
+        hOrder: 'Order', hDate: 'Date', hCustomer: 'Customer', hSlab: 'Slab',
+        hDims: 'Dims (cm)', hThick: 'Thick.', hArea: 'Area',
+        hPriceM2: 'Price/m\u00b2', hLine: 'Line Total', hDeposit: 'Deposit',
+        hPayment: 'Payment', hTotal: 'Order Total',
+        errNoCustomer: 'Please enter a customer name.',
+        errNoDate: 'Please enter a sale date.',
+        errNoSlab: 'Please enter a slab name (Slab {n}).',
+        errNoTotal: 'Please enter a valid line total for Slab {n}.',
+        submitting: 'Saving {n} slab line(s)\u2026',
+        submitOk: '\u2713 Order {id} saved \u2014 {n} line(s) submitted.',
+        submitErr: 'Submission error. Please try again.'
+      },
+      PL: {
+        navSub: 'Sprzeda\u017c P\u0142yt',
+        statLinesLabel: 'Linie zam\u00f3wienia',
+        statTotalLabel: 'Suma zam\u00f3wienia',
+        orderDetailsTitle: 'Szczeg\u00f3\u0142y zam\u00f3wienia',
+        labelCustomer: 'Nazwa klienta',
+        phCustomer: 'Zacznij pisa\u0107 nazw\u0119 klienta\u2026',
+        labelSaleDate: 'Data sprzeda\u017cy',
+        labelOrderNotes: 'Uwagi do zam\u00f3wienia',
+        phOrderNotes: 'Dostawa, wymagania specjalne\u2026',
+        slabCardLabel: 'P\u0141YTA',
+        labelSlabName: 'Nazwa p\u0142yty',
+        labelLength: 'D\u0142ugo\u015b\u0107 (cm)',
+        labelWidth: 'Szeroko\u015b\u0107 (cm)',
+        labelThickness: 'Grubo\u015b\u0107 (cm)',
+        labelArea: 'Powierzchnia (m\u00b2)',
+        labelPriceM2: 'Cena za m\u00b2',
+        labelLineTotal: 'Suma linii',
+        overrideBadge: 'R\u0119czna',
+        btnReset: 'Resetuj',
+        btnRemove: 'Usu\u0144',
+        addSlabBtn: 'Dodaj kolejn\u0105 p\u0142yt\u0119',
+        orderTotalLabel: 'Suma zam\u00f3wienia',
+        labelDeposit: 'Pobrana zaliczka',
+        labelPaymentMethod: 'Metoda p\u0142atno\u015bci',
+        paymentCash: 'Got\u00f3wka',
+        paymentBank: 'Przelew bankowy',
+        balanceLabel: 'Do pobrania',
+        saveCardTitle: 'Zapisz do Arkusza Google',
+        submitBtn: 'Akceptuj i wy\u015blij',
+        historyTitle: 'Historia zg\u0142osze\u0144',
+        btnRefresh: 'Od\u015bwie\u017c',
+        btnClearCache: 'Wyczy\u015b\u0107 pami\u0119\u0107',
+        historyEmpty: 'Kliknij Od\u015bwie\u017c, aby za\u0142adowa\u0107 histori\u0119.',
+        historyLoading: '\u0141adowanie\u2026',
+        historyNone: 'Brak rekord\u00f3w.',
+        historyError: 'B\u0142\u0105d parsowania historii.',
+        historyTimeout: 'Przekroczono czas. Sprawd\u017a dost\u0119p do arkusza.',
+        historyFail: 'B\u0142\u0105d \u0142adowania. Sprawd\u017a udost\u0119pnienie arkusza.',
+        hOrder: 'Zam\u00f3wienie', hDate: 'Data', hCustomer: 'Klient', hSlab: 'P\u0142yta',
+        hDims: 'Wym. (cm)', hThick: 'Grub.', hArea: 'Pow.',
+        hPriceM2: 'Cena/m\u00b2', hLine: 'Suma linii', hDeposit: 'Zaliczka',
+        hPayment: 'P\u0142atno\u015b\u0107', hTotal: 'Suma',
+        errNoCustomer: 'Prosz\u0119 poda\u0107 nazw\u0119 klienta.',
+        errNoDate: 'Prosz\u0119 poda\u0107 dat\u0119 sprzeda\u017cy.',
+        errNoSlab: 'Prosz\u0119 poda\u0107 nazw\u0119 p\u0142yty (P\u0142yta {n}).',
+        errNoTotal: 'Prosz\u0119 poda\u0107 poprawn\u0105 sum\u0119 dla p\u0142yty {n}.',
+        submitting: 'Zapisywanie {n} linii\u2026',
+        submitOk: '\u2713 Zam\u00f3wienie {id} zapisane \u2014 {n} lini(e).',
+        submitErr: 'B\u0142\u0105d zapisu. Spr\u00f3buj ponownie.'
+      }
+    };
+
+    var currentLang = localStorage.getItem('glg_slab_lang') || 'EN';
+
+    function t(key) {
+      return (T[currentLang] && T[currentLang][key] !== undefined)
+        ? T[currentLang][key] : (T.EN[key] || key);
+    }
+
+    function setLang(lang) {
+      currentLang = lang;
+      localStorage.setItem('glg_slab_lang', lang);
+      document.getElementById('btnEN').classList.toggle('active', lang === 'EN');
+      document.getElementById('btnPL').classList.toggle('active', lang === 'PL');
+      var els = document.querySelectorAll('[data-i18n]');
+      for (var i = 0; i < els.length; i++) {
+        els[i].textContent = t(els[i].getAttribute('data-i18n'));
+      }
+      var phEls = document.querySelectorAll('[data-i18n-ph]');
+      for (var j = 0; j < phEls.length; j++) {
+        phEls[j].placeholder = t(phEls[j].getAttribute('data-i18n-ph'));
+      }
+      updateAllLineLabels();
+    }
+
+    function updateAllLineLabels() {
+      var ids = getLineIds();
+      for (var i = 0; i < ids.length; i++) {
+        var id = ids[i];
+        var num = document.getElementById('lineNum-' + id);
+        if (num) { num.textContent = t('slabCardLabel') + ' ' + (i + 1); }
+        var pairs = [
+          ['lbl-slabName-'  + id, 'labelSlabName'],
+          ['lbl-length-'    + id, 'labelLength'],
+          ['lbl-width-'     + id, 'labelWidth'],
+          ['lbl-thickness-' + id, 'labelThickness'],
+          ['lbl-area-'      + id, 'labelArea'],
+          ['lbl-priceM2-'   + id, 'labelPriceM2'],
+          ['lbl-lineTotal-' + id, 'labelLineTotal'],
+          ['lbl-badge-'     + id, 'overrideBadge'],
+          ['lbl-btnReset-'  + id, 'btnReset'],
+          ['lbl-btnRemove-' + id, 'btnRemove']
+        ];
+        for (var p = 0; p < pairs.length; p++) {
+          var el = document.getElementById(pairs[p][0]);
+          if (el) { el.textContent = t(pairs[p][1]); }
+        }
+      }
+    }
+
+    // ─── STATE ───────────────────────────────────────────────────────────────
+    var lineCounter = 0;
+    var lineState   = {};
+    var historyOpen = false;
+    var historyRows = [];
+
+    // ─── INIT ────────────────────────────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+      if (LOGO_B64) { document.getElementById('navLogo').src = LOGO_B64; }
+      document.getElementById('saleDate').value = todayISO();
+      setLang(currentLang);
+      addLine();
+      prefetchCustomers();
+    });
+
+    // ─── IFRAME POST ─────────────────────────────────────────────────────────
+    function iframePost(url, data) {
+      return new Promise(function (resolve) {
+        var iframe = document.getElementById('_submitFrame');
+        if (!iframe) {
+          iframe = document.createElement('iframe');
+          iframe.id = '_submitFrame'; iframe.name = '_submitFrame';
+          iframe.style.display = 'none';
+          document.body.appendChild(iframe);
+        }
+        var form = document.createElement('form');
+        form.method = 'POST'; form.action = url; form.target = '_submitFrame';
+        var inp = document.createElement('input');
+        inp.type = 'hidden'; inp.name = 'payload'; inp.value = JSON.stringify(data);
+        form.appendChild(inp);
+        document.body.appendChild(form);
+        iframe.onload = function () { try { document.body.removeChild(form); } catch (e) {} resolve(); };
+        form.submit();
+        setTimeout(function () { try { document.body.removeChild(form); } catch (e) {} resolve(); }, 4000);
+      });
+    }
+
+    // ─── LINE ITEMS ───────────────────────────────────────────────────────────
+    function addLine() {
+      lineCounter++;
+      var id = lineCounter;
+      lineState[id] = { touched: false, suggested: null };
+      var container = document.getElementById('lineItemsContainer');
+      var card = document.createElement('div');
+      card.className = 'line-item-card'; card.id = 'line-' + id;
+      card.innerHTML = buildLineHTML(id);
+      container.appendChild(card);
+      updateLineNumbers();
+      updateStats();
+    }
+
+    function buildLineHTML(id) {
+      return '<div class="line-item-header">' +
+        '<span class="line-item-num" id="lineNum-' + id + '">' + t('slabCardLabel') + ' 1</span>' +
+        '<button class="btn-remove-line" id="lbl-btnRemove-' + id + '" onclick="removeLine(' + id + ')">' + t('btnRemove') + '</button>' +
+      '</div>' +
+      '<div class="line-item-body">' +
+        '<div class="form-row">' +
+          '<div class="form-group grow">' +
+            '<label id="lbl-slabName-' + id + '">' + t('labelSlabName') + '</label>' +
+            '<input type="text" id="slabName-' + id + '" oninput="updateStats()">' +
+          '</div>' +
+        '</div>' +
+        '<div class="form-row">' +
+          '<div class="form-group w-100"><label id="lbl-length-' + id + '">' + t('labelLength') + '</label>' +
+            '<input type="number" id="length-' + id + '" placeholder="260" min="0" step="0.1" oninput="recalcLine(' + id + ')"></div>' +
+          '<div class="form-group w-100"><label id="lbl-width-' + id + '">' + t('labelWidth') + '</label>' +
+            '<input type="number" id="width-' + id + '" placeholder="130" min="0" step="0.1" oninput="recalcLine(' + id + ')"></div>' +
+          '<div class="form-group w-90"><label id="lbl-thickness-' + id + '">' + t('labelThickness') + '</label>' +
+            '<input type="number" id="thickness-' + id + '" placeholder="2" min="0" step="0.1" oninput="updateStats()"></div>' +
+          '<div class="form-group w-100"><label id="lbl-area-' + id + '">' + t('labelArea') + '</label>' +
+            '<div class="calc-display empty" id="area-' + id + '">\u2014</div></div>' +
+        '</div>' +
+        '<div class="form-row" style="margin-bottom:0;">' +
+          '<div class="form-group w-120"><label id="lbl-priceM2-' + id + '">' + t('labelPriceM2') + '</label>' +
+            '<div class="input-unit"><input type="number" id="priceM2-' + id + '" placeholder="0.00" min="0" step="0.01" oninput="recalcLine(' + id + ')">' +
+            '<span class="unit-suffix">z\u0142</span></div></div>' +
+          '<div class="form-group grow">' +
+            '<label><span id="lbl-lineTotal-' + id + '">' + t('labelLineTotal') + '</span>&nbsp;' +
+              '<span class="override-badge hidden" id="badge-' + id + '">' + t('overrideBadge') + '</span></label>' +
+            '<div style="display:flex;gap:6px;align-items:center;">' +
+              '<div class="input-unit" style="flex:1;"><input type="number" id="lineTotal-' + id + '" placeholder="0.00" min="0" step="0.01" oninput="onLineTotalEdit(' + id + ')">' +
+              '<span class="unit-suffix">z\u0142</span></div>' +
+              '<button class="btn-reset" id="lbl-btnReset-' + id + '" onclick="resetLineTotal(' + id + ')" title="Reset to calculated value">' + t('btnReset') + '</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }
+
+    function removeLine(id) {
+      if (getLineIds().length <= 1) { return; }
+      delete lineState[id];
+      var el = document.getElementById('line-' + id);
+      if (el) { el.parentNode.removeChild(el); }
+      updateLineNumbers();
+      recalcOrderTotal();
+      recalcDeposit();
+      updateStats();
+    }
+
+    function updateLineNumbers() {
+      var ids = getLineIds();
+      for (var i = 0; i < ids.length; i++) {
+        var el = document.getElementById('lineNum-' + ids[i]);
+        if (el) { el.textContent = t('slabCardLabel') + ' ' + (i + 1); }
+      }
+    }
+
+    function getLineIds() {
+      var cards = document.querySelectorAll('.line-item-card');
+      var ids = [];
+      for (var i = 0; i < cards.length; i++) {
+        ids.push(parseInt(cards[i].id.replace('line-', ''), 10));
+      }
+      return ids;
+    }
+
+    // ─── CALCULATIONS ─────────────────────────────────────────────────────────
+    function recalcLine(id) {
+      var length     = parseFloat(document.getElementById('length-'  + id).value) || 0;
+      var width      = parseFloat(document.getElementById('width-'   + id).value) || 0;
+      var pricePerM2 = parseFloat(document.getElementById('priceM2-' + id).value) || 0;
+      var areaSqM    = (length > 0 && width > 0) ? (length * width) / 10000 : 0;
+      var areaEl     = document.getElementById('area-' + id);
+
+      if (areaSqM > 0) {
+        areaEl.textContent = areaSqM.toFixed(3) + ' m\u00b2';
+        areaEl.classList.remove('empty');
+      } else {
+        areaEl.textContent = '\u2014';
+        areaEl.classList.add('empty');
+      }
+
+      var suggested = (areaSqM > 0 && pricePerM2 > 0) ? Math.ceil(areaSqM * pricePerM2) : null;
+      lineState[id].suggested = suggested;
+
+      if (!lineState[id].touched && suggested !== null) {
+        document.getElementById('lineTotal-' + id).value = suggested.toFixed(2);
+      }
+      updateOverrideBadge(id);
+      recalcOrderTotal();
+      recalcDeposit();
+      updateStats();
+    }
+
+    function onLineTotalEdit(id) {
+      lineState[id].touched = true;
+      updateOverrideBadge(id);
+      recalcOrderTotal();
+      recalcDeposit();
+      updateStats();
+    }
+
+    function resetLineTotal(id) {
+      lineState[id].touched = false;
+      recalcLine(id);
+    }
+
+    function updateOverrideBadge(id) {
+      var badge = document.getElementById('badge-' + id);
+      if (!badge) { return; }
+      var val = parseFloat(document.getElementById('lineTotal-' + id).value) || 0;
+      var suggested = lineState[id].suggested;
+      var isOverride = lineState[id].touched && suggested !== null && Math.abs(val - suggested) > 0.01;
+      badge.classList.toggle('hidden', !isOverride);
+    }
+
+    function recalcOrderTotal() {
+      var ids = getLineIds(); var total = 0;
+      for (var i = 0; i < ids.length; i++) {
+        total += parseFloat(document.getElementById('lineTotal-' + ids[i]).value) || 0;
+      }
+      document.getElementById('orderTotalDisplay').textContent = fmtCurrency(total);
+      return total;
+    }
+
+    function recalcDeposit() {
+      var total   = recalcOrderTotal();
+      var deposit = parseFloat(document.getElementById('depositAmount').value) || 0;
+      document.getElementById('balanceDisplay').textContent = fmtCurrency(Math.max(0, total - deposit));
+    }
+
+    function getPaymentMethod() {
+      var radios = document.querySelectorAll('input[name="paymentMethod"]');
+      for (var i = 0; i < radios.length; i++) { if (radios[i].checked) { return radios[i].value; } }
+      return 'Cash';
+    }
+
+    function updateStats() {
+      var ids = getLineIds(); var total = recalcOrderTotal();
+      document.getElementById('statLines').textContent = ids.length;
+      document.getElementById('statTotal').textContent = total > 0 ? fmtCurrency(total) : '\u2014';
+    }
+
+    // ─── SUBMISSION ───────────────────────────────────────────────────────────
+    function generateOrderId() {
+      return 'ORD-' + todayISO().replace(/-/g, '') + '-' + Math.floor(1000 + Math.random() * 9000);
+    }
+
+    function submitOrder() {
+      var customerName  = document.getElementById('customerName').value.trim();
+      var saleDate      = document.getElementById('saleDate').value;
+      var orderNotes    = document.getElementById('orderNotes').value.trim();
+      var deposit       = parseFloat(document.getElementById('depositAmount').value) || 0;
+      var paymentMethod = getPaymentMethod();
+      var ids           = getLineIds();
+
+      if (!customerName) { setStatus('error', t('errNoCustomer')); return; }
+      if (!saleDate)      { setStatus('error', t('errNoDate'));     return; }
+
+      var rows = []; var valid = true;
+      for (var i = 0; i < ids.length; i++) {
+        var id        = ids[i];
+        var slabName  = document.getElementById('slabName-' + id).value.trim();
+        var lineTotal = parseFloat(document.getElementById('lineTotal-' + id).value) || 0;
+        if (!slabName)     { setStatus('error', t('errNoSlab').replace('{n}',  i + 1)); valid = false; break; }
+        if (lineTotal <= 0){ setStatus('error', t('errNoTotal').replace('{n}', i + 1)); valid = false; break; }
+
+        rows.push({
+          saleDate: saleDate, customerName: customerName, slabName: slabName,
+          length:    parseFloat(document.getElementById('length-'    + id).value) || 0,
+          width:     parseFloat(document.getElementById('width-'     + id).value) || 0,
+          thickness: parseFloat(document.getElementById('thickness-' + id).value) || 0,
+          areaSqM:   (function(l, w){ return (l > 0 && w > 0) ? parseFloat(((l * w) / 10000).toFixed(4)) : 0; })(
+            parseFloat(document.getElementById('length-' + id).value) || 0,
+            parseFloat(document.getElementById('width-'  + id).value) || 0),
+          pricePerM2: parseFloat(document.getElementById('priceM2-'   + id).value) || 0,
+          lineTotal: lineTotal, orderNotes: orderNotes
+        });
+      }
+      if (!valid) { return; }
+
+      var orderId    = generateOrderId();
+      var orderTotal = recalcOrderTotal();
+      var balance    = Math.max(0, orderTotal - deposit);
+
+      for (var j = 0; j < rows.length; j++) {
+        rows[j].orderId = orderId; rows[j].orderTotal = orderTotal;
+        rows[j].deposit = deposit; rows[j].paymentMethod = paymentMethod;
+        rows[j].toCollect = balance;
+      }
+
+      var submitEl   = document.getElementById('submitBtn');
+      var submitSpan = submitEl.querySelector('[data-i18n="submitBtn"]');
+      submitEl.disabled = true;
+      var submittingMsg = t('submitting').replace('{n}', rows.length);
+      if (submitSpan) { submitSpan.textContent = submittingMsg; }
+      setStatus('info', submittingMsg);
+
+      var chain = Promise.resolve();
+      for (var k = 0; k < rows.length; k++) {
+        (function(row) { chain = chain.then(function() { return iframePost(SCRIPT_URL, row); }); })(rows[k]);
+      }
+
+      chain.then(function() {
+        setStatus('success', t('submitOk').replace('{id}', orderId).replace('{n}', rows.length));
+        submitEl.disabled = false;
+        if (submitSpan) { submitSpan.textContent = t('submitBtn'); }
+        resetForm();
+        fetchAndRenderHistory();
+      }).catch(function() {
+        setStatus('error', t('submitErr'));
+        submitEl.disabled = false;
+        if (submitSpan) { submitSpan.textContent = t('submitBtn'); }
+      });
+    }
+
+    function resetForm() {
+      document.getElementById('customerName').value  = '';
+      document.getElementById('orderNotes').value    = '';
+      document.getElementById('depositAmount').value = '';
+      document.getElementById('saleDate').value      = todayISO();
+      var radios = document.querySelectorAll('input[name="paymentMethod"]');
+      if (radios[0]) { radios[0].checked = true; }
+      document.getElementById('lineItemsContainer').innerHTML = '';
+      lineCounter = 0; lineState = {};
+      addLine(); recalcDeposit();
+    }
+
+    // ─── HISTORY ──────────────────────────────────────────────────────────────
+    function toggleHistory() {
+      historyOpen = !historyOpen;
+      document.getElementById('historyBody').classList.toggle('open', historyOpen);
+      document.getElementById('historyChevron').classList.toggle('open', historyOpen);
+      if (historyOpen && historyRows.length === 0) { fetchAndRenderHistory(); }
+    }
+
+    function fetchAndRenderHistory() {
+      var content = document.getElementById('historyContent');
+      content.innerHTML = '<p style="color:var(--text-muted);font-size:12px;padding:8px 0;">' + t('historyLoading') + '</p>';
+      var cbName = '_glgSlabCb' + Date.now(); var done = false;
+      window[cbName] = function(raw) {
+        done = true;
+        try {
+          var rows = parseGvizTable(raw);
+          historyRows = rows; renderHistoryTable(rows); rebuildCustomerList(rows);
+        } catch(err) {
+          content.innerHTML = '<p style="color:var(--error);font-size:12px;">' + t('historyError') + '</p>';
+        }
+        delete window[cbName];
+      };
+      var s = document.createElement('script');
+      s.src = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?sheet=Slab_Records&tqx=responseHandler:' + cbName;
+      s.onerror = function() { if (!done) { content.innerHTML = '<p style="color:var(--error);font-size:12px;">' + t('historyFail') + '</p>'; } };
+      document.head.appendChild(s);
+      setTimeout(function() { if (!done) { content.innerHTML = '<p style="color:var(--error);font-size:12px;">' + t('historyTimeout') + '</p>'; } }, 8000);
+    }
+
+    // 0 Timestamp | 1 OrderID | 2 SaleDate | 3 CustomerName | 4 SlabName
+    // 5 Length | 6 Width | 7 Thickness | 8 AreaSqM | 9 PricePerM2
+    // 10 LineTotal | 11 OrderTotal | 12 Deposit | 13 PaymentMethod | 14 ToCollect | 15 OrderNotes
+    function parseGvizTable(raw) {
+      var rows = [];
+      if (!raw || !raw.table || !raw.table.rows) { return rows; }
+      for (var i = 0; i < raw.table.rows.length; i++) {
+        var r = raw.table.rows[i];
+        if (!r || !r.c) { continue; }
+        function cell(idx) {
+          return (r.c[idx] && r.c[idx].v !== null && r.c[idx].v !== undefined) ? r.c[idx].v : '';
+        }
+        function parseGvizDate(v) {
+          if (!v) { return ''; }
+          if (typeof v === 'string' && v.indexOf('Date(') === 0) {
+            var p = v.slice(5, -1).split(',').map(Number);
+            return new Date(Date.UTC(p[0], p[1], p[2], p[3]||0, p[4]||0, p[5]||0)).toISOString();
+          }
+          return String(v);
+        }
+        rows.push({
+          timestamp: parseGvizDate(cell(0)), orderId: cell(1),
+          saleDate: parseGvizDate(cell(2)), customerName: cell(3), slabName: cell(4),
+          length: cell(5), width: cell(6), thickness: cell(7), areaSqM: cell(8), pricePerM2: cell(9),
+          lineTotal: cell(10), orderTotal: cell(11), deposit: cell(12),
+          paymentMethod: cell(13), toCollect: cell(14), orderNotes: cell(15)
+        });
+      }
+      return rows;
+    }
+
+    function renderHistoryTable(rows) {
+      var content = document.getElementById('historyContent');
+      document.getElementById('historyCount').textContent = rows.length;
+      if (rows.length === 0) {
+        content.innerHTML = '<p style="color:var(--text-muted);font-size:12px;padding:8px 0;">' + t('historyNone') + '</p>';
+        return;
+      }
+      var seenOrders = {};
+      var html = '<div class="history-table-wrap"><table><thead><tr>' +
+        '<th>' + t('hOrder')    + '</th><th>' + t('hDate')     + '</th>' +
+        '<th>' + t('hCustomer') + '</th><th>' + t('hSlab')     + '</th>' +
+        '<th>' + t('hDims')     + '</th><th>' + t('hThick')    + '</th>' +
+        '<th>' + t('hArea')     + '</th><th>' + t('hPriceM2')  + '</th>' +
+        '<th>' + t('hLine')     + '</th><th>' + t('hDeposit')  + '</th>' +
+        '<th>' + t('hPayment')  + '</th><th>' + t('hTotal')    + '</th>' +
+        '</tr></thead><tbody>';
+
+      var reversed = rows.slice().reverse();
+      for (var i = 0; i < reversed.length; i++) {
+        var r = reversed[i];
+        var isNew = !seenOrders[r.orderId];
+        seenOrders[r.orderId] = true;
+        var pmVal = String(r.paymentMethod || '').toLowerCase();
+        var pmCls = pmVal.indexOf('bank') !== -1 ? 'bank' : 'cash';
+        var pmText = r.paymentMethod
+          ? (pmVal.indexOf('bank') !== -1 ? t('paymentBank') : t('paymentCash')) : '';
+        var rowCls = (isNew && i > 0) ? ' class="order-break"' : '';
+        html += '<tr' + rowCls + '>';
+        html += '<td>' + (isNew ? '<span class="order-ref">' + esc(r.orderId || '\u2014') + '</span>' : '') + '</td>';
+        html += '<td>' + fmtDate(r.saleDate) + '</td>';
+        html += '<td>' + esc(r.customerName) + '</td>';
+        html += '<td>' + esc(r.slabName) + '</td>';
+        html += '<td>' + (r.length && r.width ? r.length + '&times;' + r.width : '\u2014') + '</td>';
+        html += '<td>' + (r.thickness ? r.thickness + ' cm' : '\u2014') + '</td>';
+        html += '<td>' + (r.areaSqM ? parseFloat(r.areaSqM).toFixed(3) + ' m\u00b2' : '\u2014') + '</td>';
+        html += '<td>' + (r.pricePerM2 ? fmtCurrency(parseFloat(r.pricePerM2)) : '\u2014') + '</td>';
+        html += '<td style="font-weight:500;">' + (r.lineTotal ? fmtCurrency(parseFloat(r.lineTotal)) : '\u2014') + '</td>';
+        html += '<td>' + (isNew && r.deposit ? fmtCurrency(parseFloat(r.deposit)) : '') + '</td>';
+        html += '<td>' + (isNew && pmText ? '<span class="payment-tag ' + pmCls + '">' + pmText + '</span>' : '') + '</td>';
+        html += '<td style="color:var(--gold);font-weight:500;">' + (isNew && r.orderTotal ? fmtCurrency(parseFloat(r.orderTotal)) : '') + '</td>';
+        html += '</tr>';
+      }
+      html += '</tbody></table></div>';
+      content.innerHTML = html;
+    }
+
+    // ─── CUSTOMER AUTOCOMPLETE ────────────────────────────────────────────────
+    function prefetchCustomers() {
+      var cbName = '_glgCustCb' + Date.now();
+      window[cbName] = function(raw) {
+        try {
+          var rows = parseGvizTable(raw);
+          rebuildCustomerList(rows);
+          if (rows.length > 0) { historyRows = rows; }
+        } catch(e) {}
+        delete window[cbName];
+      };
+      var s = document.createElement('script');
+      s.src = 'https://docs.google.com/spreadsheets/d/' + SHEET_ID + '/gviz/tq?sheet=Slab_Records&tqx=responseHandler:' + cbName;
+      document.head.appendChild(s);
+    }
+
+    function rebuildCustomerList(rows) {
+      var names = {};
+      for (var i = 0; i < rows.length; i++) { if (rows[i].customerName) { names[rows[i].customerName] = true; } }
+      var dl = document.getElementById('customerList'); dl.innerHTML = '';
+      var keys = Object.keys(names);
+      for (var j = 0; j < keys.length; j++) {
+        var opt = document.createElement('option'); opt.value = keys[j]; dl.appendChild(opt);
+      }
+    }
+
+    function clearHistoryCache() {
+      historyRows = [];
+      document.getElementById('historyContent').innerHTML = '<p style="color:var(--text-muted);font-size:12px;">' + t('historyEmpty') + '</p>';
+      document.getElementById('historyCount').textContent = '\u2014';
+    }
+
+    // ─── HELPERS ─────────────────────────────────────────────────────────────
+    function todayISO() { return new Date().toISOString().slice(0, 10); }
+    function fmtCurrency(val) { return val.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' z\u0142'; }
+    function fmtDate(isoStr) {
+      if (!isoStr) { return '\u2014'; }
+      var d = new Date(isoStr);
+      return isNaN(d) ? isoStr.slice(0, 10) : d.toLocaleDateString('en-GB');
+    }
+    function esc(s) { return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+    function setStatus(type, msg) {
+      var el = document.getElementById('statusMsg'); var bg, color, border;
+      if (type === 'success') { bg = 'var(--success-bg)'; color = 'var(--success)'; border = 'var(--success-border)'; }
+      else if (type === 'error') { bg = 'var(--error-bg)'; color = 'var(--error)'; border = 'var(--error-border)'; }
+      else { bg = 'var(--info-bg)'; color = 'var(--info)'; border = 'var(--info-border)'; }
+      el.style.cssText = 'background:' + bg + ';color:' + color + ';border:1px solid ' + border + ';display:block;padding:10px 14px;border-radius:3px;margin-bottom:10px;';
+      el.textContent = msg;
+    }
+  </script>
+</body>
+</html>
