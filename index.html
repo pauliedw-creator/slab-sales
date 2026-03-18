@@ -103,6 +103,25 @@
     .payment-pills input[type=radio]:checked + .payment-pill { background: #f0f8f4; border-color: #2d7a4a; color: var(--success); font-weight: 500; }
     .payment-pill:hover { border-color: var(--gold); color: var(--gold-dark); }
 
+    /* DISCOUNT TYPE TOGGLE */
+    .disc-type-pills { display: flex; gap: 6px; }
+    .disc-type-pills input[type=radio] { display: none; }
+    .disc-type-pill { border: 1px solid var(--border); border-radius: 3px; padding: 6px 16px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; user-select: none; font-weight: 500; display: block; }
+    .disc-type-pills input[type=radio]:checked + .disc-type-pill { background: #fef8ec; border-color: var(--gold); color: var(--gold-dark); font-weight: 500; }
+    .disc-type-pill:hover { border-color: var(--gold); color: var(--gold-dark); }
+
+    /* ORDER TOTAL BREAKDOWN */
+    .total-breakdown { padding: 14px 22px 0; }
+    .breakdown-row { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; }
+    .breakdown-label { font-size: 12px; color: var(--text-muted); }
+    .breakdown-value { font-size: 13px; font-weight: 500; color: var(--text); }
+    .breakdown-row.discount-row { display: none; }
+    .breakdown-row.discount-row.visible { display: flex; }
+    .breakdown-row.discount-row .breakdown-label { color: var(--error); }
+    .breakdown-row.discount-row .breakdown-value { color: var(--error); }
+    .breakdown-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0 0; }
+    .order-total-bar { display: flex; align-items: center; justify-content: space-between; padding: 12px 22px; border-bottom: 1px solid #f0ece6; }
+
     /* SUBMIT */
     .btn-submit { width: 100%; background: var(--gold); border: none; border-radius: 3px; padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; color: #1a1a18; cursor: pointer; transition: background 0.15s; }
     .btn-submit:hover { background: var(--gold-light); }
@@ -210,7 +229,7 @@
           <div class="form-group w-160">
             <label data-i18n="labelTransport">Transport Cost</label>
             <div class="input-unit">
-              <input type="number" id="transportCost" placeholder="e.g. -100 for discount" min="-999999" step="1" oninput="recalcOrderTotal();recalcDeposit();updateStats();">
+              <input type="number" id="transportCost" placeholder="" min="-999999" step="1" oninput="recalcOrderTotal();recalcDeposit();updateStats();">
               <span class="unit-suffix">z&#322;</span>
             </div>
           </div>
@@ -222,6 +241,45 @@
     </div>
 
     <div class="card">
+      <div class="card-title" data-i18n="discountTitle">Discount</div>
+      <div class="card-body" style="padding-bottom:18px;">
+        <div class="form-row" style="margin-bottom:0;">
+          <div class="form-group w-160">
+            <label data-i18n="labelDiscount">Discount Amount</label>
+            <div class="input-unit">
+              <input type="number" id="discountValue" placeholder="" min="0" step="1" oninput="recalcOrderTotal();recalcDeposit();updateStats();">
+              <span class="unit-suffix" id="discountSuffix">z&#322;</span>
+            </div>
+          </div>
+          <div class="form-group grow">
+            <label data-i18n="labelDiscountType">Discount Type</label>
+            <div class="disc-type-pills">
+              <label>
+                <input type="radio" name="discountType" value="zl" checked onchange="onDiscountTypeChange()">
+                <span class="disc-type-pill">z&#322;</span>
+              </label>
+              <label>
+                <input type="radio" name="discountType" value="pct" onchange="onDiscountTypeChange()">
+                <span class="disc-type-pill">%</span>
+              </label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="total-breakdown" id="totalBreakdown">
+        <div class="breakdown-row">
+          <span class="breakdown-label" data-i18n="subtotalLabel">Subtotal</span>
+          <span class="breakdown-value" id="subtotalDisplay">0 z&#322;</span>
+        </div>
+        <div class="breakdown-row discount-row" id="discountBreakdownRow">
+          <span class="breakdown-label" id="discountBreakdownLabel" data-i18n="discountApplied">Discount applied</span>
+          <span class="breakdown-value" id="discountBreakdownValue">&minus;0 z&#322;</span>
+        </div>
+        <hr class="breakdown-divider">
+      </div>
       <div class="order-total-bar">
         <span class="order-total-label" data-i18n="orderTotalLabel">Order Total</span>
         <span class="order-total-value" id="orderTotalDisplay">0 z&#322;</span>
@@ -315,6 +373,11 @@
         btnRemove: 'Remove',
         addSlabBtn: 'Add another slab',
         transportTitle: 'Transport',
+        discountTitle: 'Discount',
+        labelDiscount: 'Discount Amount',
+        labelDiscountType: 'Discount Type',
+        subtotalLabel: 'Subtotal',
+        discountApplied: 'Discount applied',
         labelTransport: 'Transport Cost',
         transportHint: 'Included in order total',
         orderTotalLabel: 'Order Total',
@@ -369,6 +432,17 @@
         btnRemove: 'Usu\u0144',
         addSlabBtn: 'Dodaj kolejn\u0105 p\u0142yt\u0119',
         transportTitle: 'Transport',
+        discountTitle: 'Rabat',
+        labelDiscount: 'Kwota rabatu',
+        labelDiscountType: 'Typ rabatu',
+        subtotalLabel: 'Suma cząstkowa',
+        discountApplied: 'Zastosowany rabat',
+        
+        discountTitle: 'Discount',
+        labelDiscount: 'Discount Amount',
+        labelDiscountType: 'Discount Type',
+        subtotalLabel: 'Subtotal',
+        discountApplied: 'Discount applied',
         labelTransport: 'Koszt transportu',
         transportHint: 'Wliczony w sum\u0119 zam\u00f3wienia',
         orderTotalLabel: 'Suma zam\u00f3wienia',
@@ -525,13 +599,13 @@
         '</div>' +
         '<div class="form-row" style="margin-bottom:0;">' +
           '<div class="form-group w-120"><label id="lbl-priceM2-' + id + '">' + t('labelPriceM2') + '</label>' +
-            '<div class="input-unit"><input type="number" id="priceM2-' + id + '" placeholder="e.g. 150" min="0" step="1" oninput="recalcLine(' + id + ')">' +
+            '<div class="input-unit"><input type="number" id="priceM2-' + id + '" placeholder="e.g. 900" min="0" step="1" oninput="recalcLine(' + id + ')">' +
             '<span class="unit-suffix">z\u0142</span></div></div>' +
           '<div class="form-group grow">' +
             '<label><span id="lbl-lineTotal-' + id + '">' + t('labelLineTotal') + '</span>&nbsp;' +
               '<span class="override-badge hidden" id="badge-' + id + '">' + t('overrideBadge') + '</span></label>' +
             '<div style="display:flex;gap:6px;align-items:center;">' +
-              '<div class="input-unit" style="flex:1;"><input type="number" id="lineTotal-' + id + '" placeholder="e.g. 500" min="0" step="1" oninput="onLineTotalEdit(' + id + ')">' +
+              '<div class="input-unit" style="flex:1;"><input type="number" id="lineTotal-' + id + '" placeholder="" min="0" step="1" oninput="onLineTotalEdit(' + id + ')">' +
               '<span class="unit-suffix">z\u0142</span></div>' +
               '<button class="btn-reset" id="lbl-btnReset-' + id + '" onclick="resetLineTotal(' + id + ')" title="Reset to calculated value">' + t('btnReset') + '</button>' +
             '</div>' +
@@ -618,13 +692,50 @@
       badge.classList.toggle('hidden', !isOverride);
     }
 
+    function getDiscountZl(subtotal) {
+      var raw  = document.getElementById('discountValue').value;
+      if (raw === '') { return 0; }
+      var val  = parseFloat(raw) || 0;
+      var type = document.querySelector('input[name="discountType"]:checked').value;
+      if (type === 'pct') { return Math.round(subtotal * val / 100); }
+      return Math.round(val);
+    }
+
+    function onDiscountTypeChange() {
+      var type   = document.querySelector('input[name="discountType"]:checked').value;
+      document.getElementById('discountSuffix').textContent = type === 'pct' ? '%' : 'zł';
+      recalcOrderTotal(); recalcDeposit(); updateStats();
+    }
+
     function recalcOrderTotal() {
-      var ids = getLineIds(); var total = 0;
+      var ids = getLineIds(); var subtotal = 0;
       for (var i = 0; i < ids.length; i++) {
-        total += parseFloat(document.getElementById('lineTotal-' + ids[i]).value) || 0;
+        subtotal += parseFloat(document.getElementById('lineTotal-' + ids[i]).value) || 0;
       }
       var tcRaw = document.getElementById('transportCost').value;
-      total += tcRaw !== '' ? (parseFloat(tcRaw) || 0) : 0;
+      subtotal += tcRaw !== '' ? (parseFloat(tcRaw) || 0) : 0;
+
+      var discountZl = getDiscountZl(subtotal);
+      var total      = subtotal - discountZl;
+
+      // Update subtotal display
+      document.getElementById('subtotalDisplay').textContent = fmtCurrency(subtotal);
+
+      // Show/hide discount row
+      var discRow = document.getElementById('discountBreakdownRow');
+      if (discountZl > 0) {
+        discRow.classList.add('visible');
+        var type = document.querySelector('input[name="discountType"]:checked').value;
+        var raw  = document.getElementById('discountValue').value;
+        var lbl  = type === 'pct'
+          ? (t('discountApplied') + ' (' + (parseFloat(raw) || 0) + '%)')
+          : t('discountApplied');
+        document.getElementById('discountBreakdownLabel').textContent = lbl;
+        document.getElementById('discountBreakdownValue').textContent = '−' + fmtCurrency(discountZl);
+      } else {
+        discRow.classList.remove('visible');
+      }
+
       document.getElementById('orderTotalDisplay').textContent = fmtCurrency(total);
       return total;
     }
@@ -693,12 +804,25 @@
       var orderTotal = recalcOrderTotal();
       var balance    = Math.max(0, orderTotal - deposit);
 
+      var subtotalForDisc = 0;
+      for (var si = 0; si < rows.length; si++) { subtotalForDisc += rows[si].lineTotal || 0; }
+      var tcValFinal = document.getElementById('transportCost').value;
+      subtotalForDisc += tcValFinal !== '' ? (parseFloat(tcValFinal) || 0) : 0;
+      var discountZlFinal  = getDiscountZl(subtotalForDisc);
+      var discountRaw      = document.getElementById('discountValue').value;
+      var discountTypeFinal = document.querySelector('input[name="discountType"]:checked').value;
+      var discountLabel    = discountTypeFinal === 'pct'
+        ? ((parseFloat(discountRaw) || 0) + '%')
+        : (discountZlFinal + ' zł');
+
       for (var j = 0; j < rows.length; j++) {
         rows[j].orderId = orderId; rows[j].orderTotal = orderTotal;
         rows[j].deposit = deposit; rows[j].paymentMethod = paymentMethod;
         rows[j].toCollect = balance;
         var tcVal = document.getElementById('transportCost').value;
         rows[j].transportCost = tcVal !== '' ? (parseFloat(tcVal) || 0) : 0;
+        rows[j].discountZl    = discountZlFinal;
+        rows[j].discountLabel = discountZlFinal > 0 ? discountLabel : '';
       }
 
       var submitEl   = document.getElementById('submitBtn');
@@ -734,6 +858,7 @@
       var radios = document.querySelectorAll('input[name="paymentMethod"]');
       if (radios[0]) { radios[0].checked = true; }
       document.getElementById('transportCost').value = '';
+      document.getElementById('discountValue').value = '';
       document.getElementById('lineItemsContainer').innerHTML = '';
       lineCounter = 0; lineState = {};
       addLine(); recalcDeposit();
@@ -794,7 +919,8 @@
           itemName: cell(5),
           length: cell(6), width: cell(7), thickness: cell(8), areaSqM: cell(9), pricePerM2: cell(10),
           lineTotal: cell(11), orderTotal: cell(12), transportCost: cell(13),
-          deposit: cell(14), paymentMethod: cell(15), toCollect: cell(16), orderNotes: cell(17)
+          discountZl: cell(14), discountLabel: cell(15),
+          deposit: cell(16), paymentMethod: cell(17), toCollect: cell(18), orderNotes: cell(19)
         });
       }
       return rows;
