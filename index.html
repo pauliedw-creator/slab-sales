@@ -964,10 +964,11 @@
       return rows;
     }
 
-    function toggleOrderCard(id) {
-      var body = document.getElementById('ocb-' + id);
-      var chev = document.getElementById('occ-' + id);
-      var hdr  = document.getElementById('och-' + id);
+    function toggleOrderCard(idx) {
+      var cardId = 'oc' + idx;
+      var body = document.getElementById('ocb-' + cardId);
+      var chev = document.getElementById('occ-' + cardId);
+      var hdr  = document.getElementById('och-' + cardId);
       if (!body) { return; }
       var open = body.classList.toggle('open');
       chev.classList.toggle('open', open);
@@ -1011,7 +1012,7 @@
 
         // Card header
         html += '<div class="order-card">';
-        html += '<div class="order-card-header" id="och-' + cardId + '" onclick="toggleOrderCard(\\x27' + cardId + '\\x27)">';
+        html += '<div class="order-card-header" id="och-' + cardId + '" onclick="toggleOrderCard(' + o + ')">';
         html += '<span class="och-ref">' + esc(oid) + '</span>';
         html += '<span class="och-date">' + fmtDate(meta.saleDate) + '</span>';
         html += '<span class="och-customer">' + esc(meta.customerName) + '</span>';
