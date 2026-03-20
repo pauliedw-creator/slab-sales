@@ -235,6 +235,7 @@
             <input type="text" id="customerName" list="customerList"
               data-i18n-ph="phCustomer" placeholder="Start typing customer name&#8230;" autocomplete="off">
             <datalist id="customerList"></datalist>
+            <datalist id="slabList"></datalist>
           </div>
           <div class="form-group w-120">
             <label data-i18n="labelSaleDate">Sale Date</label>
@@ -622,7 +623,7 @@
         '<div class="form-row">' +
           '<div class="form-group grow">' +
             '<label id="lbl-slabName-' + id + '">' + t('labelSlabName') + '</label>' +
-            '<input type="text" id="slabName-' + id + '" oninput="updateStats()">' +
+            '<input type="text" id="slabName-' + id + '" list="slabList" oninput="updateStats()" autocomplete="off">' +
           '</div>' +
         '</div>' +
         '<div class="form-row">' +
@@ -918,7 +919,7 @@
         done = true;
         try {
           var rows = parseGvizTable(raw);
-          historyRows = rows; renderHistoryTable(rows); rebuildCustomerList(rows);
+          historyRows = rows; renderHistoryTable(rows); rebuildCustomerList(rows); rebuildSlabList(rows);
         } catch(err) {
           content.innerHTML = '<p style="color:var(--error);font-size:12px;">' + t('historyError') + '</p>';
         }
@@ -958,7 +959,8 @@
           length: cell(6), width: cell(7), thickness: cell(8), areaSqM: cell(9), pricePerM2: cell(10),
           lineTotal: cell(11), orderTotal: cell(12), transportCost: cell(13),
           discountZl: cell(14), discountLabel: cell(15),
-          deposit: cell(16), paymentMethod: cell(17), toCollect: cell(18), orderNotes: cell(19)
+          deposit: cell(16), paymentMethod: cell(17), toCollect: cell(18), orderNotes: cell(19),
+          rawSlabName: cell(21)
         });
       }
       return rows;
@@ -1075,6 +1077,7 @@
         try {
           var rows = parseGvizTable(raw);
           rebuildCustomerList(rows);
+          rebuildSlabList(rows);
           if (rows.length > 0) { historyRows = rows; }
         } catch(e) {}
         delete window[cbName];
@@ -1088,6 +1091,24 @@
       var names = {};
       for (var i = 0; i < rows.length; i++) { if (rows[i].customerName) { names[rows[i].customerName] = true; } }
       var dl = document.getElementById('customerList'); dl.innerHTML = '';
+      var keys = Object.keys(names);
+      for (var j = 0; j < keys.length; j++) {
+        var opt = document.createElement('option'); opt.value = keys[j]; dl.appendChild(opt);
+      }
+    }
+
+    function rebuildSlabList(rows) {
+      var names = {};
+      for (var i = 0; i < rows.length; i++) {
+        // Prefer the dedicated raw column (V); fall back to stripping dims from the combined itemName field
+        var raw = String(rows[i].rawSlabName || '').trim();
+        if (!raw) {
+          raw = String(rows[i].slabName || rows[i].itemName || '').trim();
+          raw = raw.replace(/\s*-\s*\d+(?:\.\d+)?(?:\s*cm)?\s*[xX×]\s*\d+(?:\.\d+)?(?:\s*cm)?\s*$/i, '').trim();
+        }
+        if (raw) { names[raw] = true; }
+      }
+      var dl = document.getElementById('slabList'); dl.innerHTML = '';
       var keys = Object.keys(names);
       for (var j = 0; j < keys.length; j++) {
         var opt = document.createElement('option'); opt.value = keys[j]; dl.appendChild(opt);
