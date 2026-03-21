@@ -100,7 +100,7 @@
     .payment-pills { display: flex; gap: 6px; }
     .payment-pills input[type=radio] { display: none; }
     .payment-pill { border: 1px solid var(--border); border-radius: 3px; padding: 6px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; user-select: none; white-space: nowrap; display: block; }
-    .payment-pills input[type=radio]:checked + .payment-pill { background: #f0f8f4; border-color: #2d7a4a; color: var(--success); font-weight: 500; }
+    .payment-pills input[type=radio]:checked + .payment-pill { background: var(--nav); border-color: var(--nav); color: var(--gold); font-weight: 500; }
     .payment-pill:hover { border-color: var(--gold); color: var(--gold-dark); }
 
     /* DISCOUNT TYPE TOGGLE */
@@ -334,7 +334,7 @@
             <label data-i18n="labelPaymentMethod">Payment Method</label>
             <div class="payment-pills">
               <label>
-                <input type="radio" name="paymentMethod" value="Cash" checked onchange="recalcDeposit()">
+                <input type="radio" name="paymentMethod" value="Cash" onchange="recalcDeposit()">
                 <span class="payment-pill" data-i18n="paymentCash">Cash</span>
               </label>
               <label>
@@ -895,7 +895,7 @@
       document.getElementById('depositAmount').value = '';
       document.getElementById('saleDate').value      = todayISO();
       var radios = document.querySelectorAll('input[name="paymentMethod"]');
-      if (radios[0]) { radios[0].checked = true; }
+      for (var i = 0; i < radios.length; i++) { radios[i].checked = false; }
       document.getElementById('transportCost').value = '';
       document.getElementById('discountValue').value = '';
       document.getElementById('lineItemsContainer').innerHTML = '';
