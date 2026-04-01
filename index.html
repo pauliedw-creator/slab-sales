@@ -324,7 +324,7 @@
       <div class="deposit-section">
         <div class="deposit-row">
           <div class="form-group w-160">
-            <label data-i18n="labelDeposit">Deposit Taken</label>
+            <label data-i18n="labelDeposit">Payment / Deposit Taken</label>
             <div class="input-unit">
               <input type="number" id="depositAmount" placeholder="e.g. 500" min="0" step="1" oninput="recalcDeposit()">
               <span class="unit-suffix">z&#322;</span>
@@ -418,7 +418,7 @@
         labelTransport: 'Transport Cost',
         transportHint: 'Included in order total',
         orderTotalLabel: 'Order Total',
-        labelDeposit: 'Deposit Taken',
+        labelDeposit: 'Payment / Deposit Taken',
         labelPaymentMethod: 'Payment Method',
         paymentCash: 'Cash',
         paymentBank: 'Bank Transfer',
@@ -443,6 +443,8 @@
         errNoDate: 'Please enter a sale date.',
         errNoSlab: 'Please enter a slab name (Slab {n}).',
         errNoTotal: 'Please enter a valid line total for Slab {n}.',
+        errDepositNeedsPayment: 'Please select a payment method for the deposit.',
+        errPaymentNeedsDeposit: 'Please enter a deposit amount for the selected payment method.',
         submitting: 'Saving {n} slab line(s)\u2026',
         submitOk: '\u2713 Order {id} saved \u2014 {n} line(s) submitted.',
         submitErr: 'Submission error. Please try again.'
@@ -484,7 +486,7 @@
         labelTransport: 'Koszt transportu',
         transportHint: 'Wliczony w sum\u0119 zam\u00f3wienia',
         orderTotalLabel: 'Suma zam\u00f3wienia',
-        labelDeposit: 'Pobrana zaliczka',
+        labelDeposit: 'P\u0142atno\u015b\u0107 / Pobrana zaliczka',
         labelPaymentMethod: 'Metoda p\u0142atno\u015bci',
         paymentCash: 'Got\u00f3wka',
         paymentBank: 'Przelew bankowy',
@@ -509,6 +511,8 @@
         errNoDate: 'Prosz\u0119 poda\u0107 dat\u0119 sprzeda\u017cy.',
         errNoSlab: 'Prosz\u0119 poda\u0107 nazw\u0119 p\u0142yty (P\u0142yta {n}).',
         errNoTotal: 'Prosz\u0119 poda\u0107 poprawn\u0105 sum\u0119 dla p\u0142yty {n}.',
+        errDepositNeedsPayment: 'Prosz\u0119 wybra\u0107 metod\u0119 p\u0142atno\u015bci dla zaliczki.',
+        errPaymentNeedsDeposit: 'Prosz\u0119 poda\u0107 kwot\u0119 zaliczki dla wybranej metody p\u0142atno\u015bci.',
         submitting: 'Zapisywanie {n} linii\u2026',
         submitOk: '\u2713 Zam\u00f3wienie {id} zapisane \u2014 {n} lini(e).',
         submitErr: 'B\u0142\u0105d zapisu. Spr\u00f3buj ponownie.'
@@ -788,7 +792,7 @@
     function getPaymentMethod() {
       var radios = document.querySelectorAll('input[name="paymentMethod"]');
       for (var i = 0; i < radios.length; i++) { if (radios[i].checked) { return radios[i].value; } }
-      return 'Cash';
+      return '';
     }
 
     function updateStats() {
@@ -812,6 +816,11 @@
 
       if (!customerName) { setStatus('error', t('errNoCustomer')); return; }
       if (!saleDate)      { setStatus('error', t('errNoDate'));     return; }
+
+      var hasDeposit = deposit > 0;
+      var hasPayment = paymentMethod !== '';
+      if (hasDeposit && !hasPayment) { setStatus('error', t('errDepositNeedsPayment')); return; }
+      if (hasPayment && !hasDeposit) { setStatus('error', t('errPaymentNeedsDeposit')); return; }
 
       var rows = []; var valid = true;
       for (var i = 0; i < ids.length; i++) {
