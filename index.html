@@ -97,7 +97,7 @@
     .collect-value { font-size: 20px; font-weight: 500; color: var(--gold); }
 
     /* PAYMENT PILLS */
-    .payment-pills { display: flex; gap: 6px; }
+    .payment-pills { display: flex; gap: 6px; flex-wrap: wrap; }
     .payment-pills input[type=radio] { display: none; }
     .payment-pill { border: 1px solid var(--border); border-radius: 3px; padding: 6px 14px; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--text-muted); cursor: pointer; transition: all 0.15s; user-select: none; white-space: nowrap; display: block; }
     .payment-pills input[type=radio]:checked + .payment-pill { background: var(--nav); border-color: var(--nav); color: var(--gold); font-weight: 500; }
@@ -193,6 +193,7 @@
       .nav-brand { display: none; }
       .form-group.w-160, .form-group.w-120, .form-group.w-100, .form-group.w-90 { flex: 1; width: auto; }
       th:nth-child(n+8), td:nth-child(n+8) { display: none; }
+      .payment-pill { flex: 1; text-align: center; }
     }
     @media (max-width: 400px) {
       .stat-value { font-size: 20px; }
@@ -472,17 +473,11 @@
         btnRemove: 'Usu\u0144',
         addSlabBtn: 'Dodaj kolejn\u0105 p\u0142yt\u0119',
         transportTitle: 'Transport',
-        discountTitle: 'Rabat',
-        labelDiscount: 'Kwota rabatu',
-        labelDiscountType: 'Typ rabatu',
-        subtotalLabel: 'Suma cząstkowa',
-        discountApplied: 'Zastosowany rabat',
-        
-        discountTitle: 'Discount',
-        labelDiscount: 'Discount Amount',
-        labelDiscountType: 'Discount Type',
-        subtotalLabel: 'Subtotal',
-        discountApplied: 'Discount applied',
+        discountTitle: 'Upust',
+        labelDiscount: 'Kwota upustu',
+        labelDiscountType: 'Typ upustu',
+        subtotalLabel: 'Suma cz\u0105stkowa',
+        discountApplied: 'Zastosowany upust',
         labelTransport: 'Koszt transportu',
         transportHint: 'Wliczony w sum\u0119 zam\u00f3wienia',
         orderTotalLabel: 'Suma zam\u00f3wienia',
