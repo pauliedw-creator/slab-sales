@@ -687,7 +687,7 @@
       var length     = parseFloat(document.getElementById('length-'  + id).value) || 0;
       var width      = parseFloat(document.getElementById('width-'   + id).value) || 0;
       var pricePerM2 = parseFloat(document.getElementById('priceM2-' + id).value) || 0;
-      var areaSqM    = (length > 0 && width > 0) ? (length * width) / 10000 : 0;
+      var areaSqM    = (length > 0 && width > 0) ? round2((length * width) / 10000) : 0;
       var areaEl     = document.getElementById('area-' + id);
 
       if (areaSqM > 0) {
