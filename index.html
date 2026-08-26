@@ -80,6 +80,8 @@
     .line-item-num { font-size: 9px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--text-faint); font-weight: 500; }
     .btn-remove-line { background: none; border: 1px solid #e0d8cf; border-radius: 3px; padding: 3px 10px; font-size: 11px; color: var(--error); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; }
     .btn-remove-line:hover { background: var(--error-bg); border-color: var(--error); }
+    .btn-copy-line { background: none; border: 1px solid #e0d8cf; border-radius: 3px; padding: 3px 10px; font-size: 11px; color: var(--text-muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s; margin-right: 6px; }
+    .btn-copy-line:hover { border-color: var(--gold); color: var(--gold-dark); }
     .line-item-body { padding: 14px 22px 18px; }
 
     /* ADD LINE */
@@ -363,6 +365,7 @@
         overrideBadge: 'Override',
         btnReset: 'Reset',
         btnRemove: 'Remove',
+        btnCopy: 'Copy Slab',
         addSlabBtn: 'Add another slab',
         transportTitle: 'Transport',
         discountTitle: 'Discount',
@@ -425,6 +428,7 @@
         overrideBadge: 'R\u0119czna',
         btnReset: 'Resetuj',
         btnRemove: 'Usu\u0144',
+        btnCopy: 'Kopiuj p\u0142yt\u0119',
         addSlabBtn: 'Dodaj kolejn\u0105 p\u0142yt\u0119',
         transportTitle: 'Transport',
         discountTitle: 'Upust',
@@ -507,6 +511,7 @@
           ['lbl-lineTotal-' + id, 'labelLineTotal'],
           ['lbl-badge-'     + id, 'overrideBadge'],
           ['lbl-btnReset-'  + id, 'btnReset'],
+          ['lbl-btnCopy-'   + id, 'btnCopy'],
           ['lbl-btnRemove-' + id, 'btnRemove']
         ];
         for (var p = 0; p < pairs.length; p++) {
@@ -570,7 +575,10 @@
     function buildLineHTML(id) {
       return '<div class="line-item-header">' +
         '<span class="line-item-num" id="lineNum-' + id + '">' + t('slabCardLabel') + ' 1</span>' +
-        '<button class="btn-remove-line" id="lbl-btnRemove-' + id + '" onclick="removeLine(' + id + ')">' + t('btnRemove') + '</button>' +
+        '<div>' +
+          '<button class="btn-copy-line" id="lbl-btnCopy-' + id + '" onclick="copyLine(' + id + ')">' + t('btnCopy') + '</button>' +
+          '<button class="btn-remove-line" id="lbl-btnRemove-' + id + '" onclick="removeLine(' + id + ')">' + t('btnRemove') + '</button>' +
+        '</div>' +
       '</div>' +
       '<div class="line-item-body">' +
         '<div class="form-row">' +
@@ -615,6 +623,28 @@
       recalcOrderTotal();
       recalcDeposit();
       updateStats();
+    }
+
+    function copyLine(sourceId) {
+      var srcTouched = lineState[sourceId] ? lineState[sourceId].touched : false;
+      var srcVals = {
+        slabName:  document.getElementById('slabName-'  + sourceId).value,
+        length:    document.getElementById('length-'    + sourceId).value,
+        width:     document.getElementById('width-'     + sourceId).value,
+        thickness: document.getElementById('thickness-' + sourceId).value,
+        priceM2:   document.getElementById('priceM2-'   + sourceId).value,
+        lineTotal: document.getElementById('lineTotal-' + sourceId).value
+      };
+      addLine();
+      var newId = lineCounter;
+      document.getElementById('slabName-'  + newId).value = srcVals.slabName;
+      document.getElementById('length-'    + newId).value = srcVals.length;
+      document.getElementById('width-'     + newId).value = srcVals.width;
+      document.getElementById('thickness-' + newId).value = srcVals.thickness;
+      document.getElementById('priceM2-'   + newId).value = srcVals.priceM2;
+      document.getElementById('lineTotal-' + newId).value = srcVals.lineTotal;
+      lineState[newId].touched = srcTouched;
+      recalcLine(newId);
     }
 
     function updateLineNumbers() {
