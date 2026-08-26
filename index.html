@@ -1,12 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+ <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow">
   <title>GLG — Slab Sales</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&amp;family=DM+Mono:wght@400&amp;display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #edeae4; --surface: #fff; --border: #dbd6ce;
@@ -200,192 +200,144 @@
       .stat-value { font-size: 20px; }
     }
   </style>
-</head>
-<body>
-
+ </head>
+ <body>
   <nav>
-    <div class="nav-logo"><img id="navLogo" src="" alt="GLG"></div>
-    <div class="nav-divider"></div>
-    <span class="nav-brand">Golden Leaf Granit</span>
-    <span class="nav-sub" data-i18n="navSub">Slab Sales</span>
-    <div class="nav-spacer"></div>
-    <div class="lang-toggle">
-      <button class="btn-lang active" id="btnEN" onclick="setLang('EN')">EN</button>
-      <button class="btn-lang"        id="btnPL" onclick="setLang('PL')">PL</button>
-    </div>
+   <div class="nav-logo">
+    <img id="navLogo" src="" alt="GLG">
+   </div>
+   <div class="nav-divider"></div>
+   <span class="nav-brand">Golden Leaf Granit</span> <span class="nav-sub" data-i18n="navSub">Slab Sales</span>
+   <div class="nav-spacer"></div>
+   <div class="lang-toggle">
+    <button class="btn-lang active" id="btnEN" onclick="setLang('EN')">EN</button>
+    <button class="btn-lang" id="btnPL" onclick="setLang('PL')">PL</button>
+   </div>
   </nav>
-
   <div class="container">
-
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-label" data-i18n="statLinesLabel">Lines in Order</div>
-        <div class="stat-value" id="statLines">1</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label" data-i18n="statTotalLabel">Order Total</div>
-        <div class="stat-value gold" id="statTotal">&#8212;</div>
-      </div>
+   <div class="stat-grid">
+    <div class="stat-card">
+     <div class="stat-label" data-i18n="statLinesLabel">Lines in Order</div>
+     <div class="stat-value" id="statLines">1</div>
     </div>
-
-    <div class="card">
-      <div class="card-title" data-i18n="orderDetailsTitle">Order Details</div>
-      <div class="card-body">
-        <div class="form-row">
-          <div class="form-group grow">
-            <label data-i18n="labelCustomer">Customer Name</label>
-            <input type="text" id="customerName" list="customerList"
-              data-i18n-ph="phCustomer" placeholder="Start typing customer name&#8230;" autocomplete="off">
-            <datalist id="customerList"></datalist>
-            <datalist id="slabList"></datalist>
-          </div>
-          <div class="form-group w-120">
-            <label data-i18n="labelSaleDate">Sale Date</label>
-            <input type="date" id="saleDate">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group grow">
-            <label data-i18n="labelOrderNotes">Order Notes</label>
-            <input type="text" id="orderNotes"
-              data-i18n-ph="phOrderNotes" placeholder="Delivery instructions, special requirements&#8230;">
-          </div>
-        </div>
-      </div>
+    <div class="stat-card">
+     <div class="stat-label" data-i18n="statTotalLabel">Order Total</div>
+     <div class="stat-value gold" id="statTotal">—</div>
     </div>
-
-    <div id="lineItemsContainer"></div>
-
-    <button class="btn-add-line" onclick="addLine()">
-      <span class="btn-add-plus">+</span>
-      <span data-i18n="addSlabBtn">Add another slab</span>
-    </button>
-
-    <div class="card">
-      <div class="card-title" data-i18n="transportTitle">Transport</div>
-      <div class="card-body" style="padding-bottom:18px;">
-        <div class="form-row" style="margin-bottom:0;">
-          <div class="form-group w-160">
-            <label data-i18n="labelTransport">Transport Cost</label>
-            <div class="input-unit">
-              <input type="number" id="transportCost" placeholder="" min="-999999" step="0.01" oninput="recalcOrderTotal();recalcDeposit();updateStats();">
-              <span class="unit-suffix">z&#322;</span>
-            </div>
-          </div>
-          <div class="form-group grow" style="justify-content:flex-end;">
-            <div style="font-size:11px;color:var(--text-muted);padding-bottom:9px;" data-i18n="transportHint">Included in order total</div>
-          </div>
-        </div>
+   </div>
+   <div class="card">
+    <div class="card-title" data-i18n="orderDetailsTitle">Order Details</div>
+    <div class="card-body">
+     <div class="form-row">
+      <div class="form-group grow">
+       <label data-i18n="labelCustomer">Customer Name</label> <input type="text" id="customerName" list="customerList" data-i18n-ph="phCustomer" placeholder="Start typing customer name…" autocomplete="off"> <datalist id="customerList"></datalist> <datalist id="slabList"></datalist>
       </div>
+      <div class="form-group w-120">
+       <label data-i18n="labelSaleDate">Sale Date</label> <input type="date" id="saleDate">
+      </div>
+     </div>
+     <div class="form-row">
+      <div class="form-group grow">
+       <label data-i18n="labelOrderNotes">Order Notes</label> <input type="text" id="orderNotes" data-i18n-ph="phOrderNotes" placeholder="Delivery instructions, special requirements…">
+      </div>
+     </div>
     </div>
-
-    <div class="card">
-      <div class="card-title" data-i18n="discountTitle">Discount</div>
-      <div class="card-body" style="padding-bottom:18px;">
-        <div class="form-row" style="margin-bottom:0;">
-          <div class="form-group w-160">
-            <label data-i18n="labelDiscount">Discount Amount</label>
-            <div class="input-unit">
-              <input type="number" id="discountValue" placeholder="" min="0" step="0.01" oninput="recalcOrderTotal();recalcDeposit();updateStats();">
-              <span class="unit-suffix" id="discountSuffix">z&#322;</span>
-            </div>
-          </div>
-          <div class="form-group grow">
-            <label data-i18n="labelDiscountType">Discount Type</label>
-            <div class="disc-type-pills">
-              <label>
-                <input type="radio" name="discountType" value="zl" checked onchange="onDiscountTypeChange()">
-                <span class="disc-type-pill">z&#322;</span>
-              </label>
-              <label>
-                <input type="radio" name="discountType" value="pct" onchange="onDiscountTypeChange()">
-                <span class="disc-type-pill">%</span>
-              </label>
-            </div>
-          </div>
-        </div>
+   </div>
+   <div id="lineItemsContainer"></div>
+   <button class="btn-add-line" onclick="addLine()"><span class="btn-add-plus">+</span> <span data-i18n="addSlabBtn">Add another slab</span></button>
+   <div class="card">
+    <div class="card-title" data-i18n="transportTitle">Transport</div>
+    <div class="card-body" style="padding-bottom:18px;">
+     <div class="form-row" style="margin-bottom:0;">
+      <div class="form-group w-160">
+       <label data-i18n="labelTransport">Transport Cost</label>
+       <div class="input-unit">
+        <input type="number" id="transportCost" placeholder="" min="-999999" step="0.01" oninput="recalcOrderTotal();recalcDeposit();updateStats();"> <span class="unit-suffix">zł</span>
+       </div>
       </div>
+      <div class="form-group grow" style="justify-content:flex-end;">
+       <div style="font-size:11px;color:var(--text-muted);padding-bottom:9px;" data-i18n="transportHint">Included in order total</div>
+      </div>
+     </div>
     </div>
-
-    <div class="card">
-      <div class="total-breakdown" id="totalBreakdown">
-        <div class="breakdown-row">
-          <span class="breakdown-label" data-i18n="subtotalLabel">Subtotal</span>
-          <span class="breakdown-value" id="subtotalDisplay">0 z&#322;</span>
-        </div>
-        <div class="breakdown-row discount-row" id="discountBreakdownRow">
-          <span class="breakdown-label" id="discountBreakdownLabel" data-i18n="discountApplied">Discount applied</span>
-          <span class="breakdown-value" id="discountBreakdownValue">&minus;0 z&#322;</span>
-        </div>
-        <hr class="breakdown-divider">
+   </div>
+   <div class="card">
+    <div class="card-title" data-i18n="discountTitle">Discount</div>
+    <div class="card-body" style="padding-bottom:18px;">
+     <div class="form-row" style="margin-bottom:0;">
+      <div class="form-group w-160">
+       <label data-i18n="labelDiscount">Discount Amount</label>
+       <div class="input-unit">
+        <input type="number" id="discountValue" placeholder="" min="0" step="0.01" oninput="recalcOrderTotal();recalcDeposit();updateStats();"> <span class="unit-suffix" id="discountSuffix">zł</span>
+       </div>
       </div>
-      <div class="order-total-bar">
-        <span class="order-total-label" data-i18n="orderTotalLabel">Order Total</span>
-        <span class="order-total-value" id="orderTotalDisplay">0 z&#322;</span>
+      <div class="form-group grow">
+       <label data-i18n="labelDiscountType">Discount Type</label>
+       <div class="disc-type-pills">
+        <label> <input type="radio" name="discountType" value="zl" checked onchange="onDiscountTypeChange()"> <span class="disc-type-pill">zł</span> </label> <label> <input type="radio" name="discountType" value="pct" onchange="onDiscountTypeChange()"> <span class="disc-type-pill">%</span> </label>
+       </div>
       </div>
-      <div class="deposit-section">
-        <div class="deposit-row">
-          <div class="form-group w-160">
-            <label data-i18n="labelDeposit">Payment / Deposit Taken</label>
-            <div class="input-unit">
-              <input type="number" id="depositAmount" placeholder="e.g. 500" min="0" step="0.01" oninput="recalcDeposit()">
-              <span class="unit-suffix">z&#322;</span>
-            </div>
-          </div>
-          <div class="form-group grow">
-            <label data-i18n="labelPaymentMethod">Payment Method</label>
-            <div class="payment-pills">
-              <label>
-                <input type="radio" name="paymentMethod" value="Cash" onclick="onPaymentClick(this)">
-                <span class="payment-pill" data-i18n="paymentCash">Cash</span>
-              </label>
-              <label>
-                <input type="radio" name="paymentMethod" value="Bank Transfer" onclick="onPaymentClick(this)">
-                <span class="payment-pill" data-i18n="paymentBank">Bank Transfer</span>
-              </label>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="collect-bar">
-        <span class="collect-label" data-i18n="balanceLabel">Balance to Collect</span>
-        <span class="collect-value" id="balanceDisplay">0 z&#322;</span>
-      </div>
+     </div>
     </div>
-
-    <div class="card">
-      <div class="card-title" data-i18n="saveCardTitle">Save to Google Sheet</div>
-      <div class="card-body">
-        <div class="status-msg" id="statusMsg"></div>
-        <button class="btn-submit" id="submitBtn" onclick="submitOrder()">
-          <span data-i18n="submitBtn">Accept &amp; Submit</span>
-        </button>
-      </div>
+   </div>
+   <div class="card">
+    <div class="total-breakdown" id="totalBreakdown">
+     <div class="breakdown-row">
+      <span class="breakdown-label" data-i18n="subtotalLabel">Subtotal</span> <span class="breakdown-value" id="subtotalDisplay">0 zł</span>
+     </div>
+     <div class="breakdown-row discount-row" id="discountBreakdownRow">
+      <span class="breakdown-label" id="discountBreakdownLabel" data-i18n="discountApplied">Discount applied</span> <span class="breakdown-value" id="discountBreakdownValue">−0 zł</span>
+     </div>
+     <hr class="breakdown-divider">
     </div>
-
-    <div class="card" style="margin-bottom:32px;">
-      <div class="history-header" onclick="toggleHistory()">
-        <span class="history-title" data-i18n="historyTitle">Submission History</span>
-        <span class="history-count" id="historyCount">&#8212;</span>
-        <span class="history-chevron" id="historyChevron">&#9660;</span>
-      </div>
-      <div class="history-body" id="historyBody">
-        <div class="history-controls">
-          <button class="btn-sm" onclick="fetchAndRenderHistory()" data-i18n="btnRefresh">Refresh</button>
-          <button class="btn-sm" onclick="clearHistoryCache()" data-i18n="btnClearCache">Clear local cache</button>
-        </div>
-        <div id="historyContent">
-          <p style="color:var(--text-muted);font-size:12px;" data-i18n="historyEmpty">Click Refresh to load history.</p>
-        </div>
-      </div>
+    <div class="order-total-bar">
+     <span class="order-total-label" data-i18n="orderTotalLabel">Order Total</span> <span class="order-total-value" id="orderTotalDisplay">0 zł</span>
     </div>
-
+    <div class="deposit-section">
+     <div class="deposit-row">
+      <div class="form-group w-160">
+       <label data-i18n="labelDeposit">Payment / Deposit Taken</label>
+       <div class="input-unit">
+        <input type="number" id="depositAmount" placeholder="e.g. 500" min="0" step="0.01" oninput="recalcDeposit()"> <span class="unit-suffix">zł</span>
+       </div>
+      </div>
+      <div class="form-group grow">
+       <label data-i18n="labelPaymentMethod">Payment Method</label>
+       <div class="payment-pills">
+        <label> <input type="radio" name="paymentMethod" value="Cash" onclick="onPaymentClick(this)"> <span class="payment-pill" data-i18n="paymentCash">Cash</span> </label> <label> <input type="radio" name="paymentMethod" value="Bank Transfer" onclick="onPaymentClick(this)"> <span class="payment-pill" data-i18n="paymentBank">Bank Transfer</span> </label>
+       </div>
+      </div>
+     </div>
+    </div>
+    <div class="collect-bar">
+     <span class="collect-label" data-i18n="balanceLabel">Balance to Collect</span> <span class="collect-value" id="balanceDisplay">0 zł</span>
+    </div>
+   </div>
+   <div class="card">
+    <div class="card-title" data-i18n="saveCardTitle">Save to Google Sheet</div>
+    <div class="card-body">
+     <div class="status-msg" id="statusMsg"></div>
+     <button class="btn-submit" id="submitBtn" onclick="submitOrder()"><span data-i18n="submitBtn">Accept &amp; Submit</span></button>
+    </div>
+   </div>
+   <div class="card" style="margin-bottom:32px;">
+    <div class="history-header" onclick="toggleHistory()">
+     <span class="history-title" data-i18n="historyTitle">Submission History</span> <span class="history-count" id="historyCount">—</span> <span class="history-chevron" id="historyChevron">▼</span>
+    </div>
+    <div class="history-body" id="historyBody">
+     <div class="history-controls">
+      <button class="btn-sm" onclick="fetchAndRenderHistory()" data-i18n="btnRefresh">Refresh</button>
+      <button class="btn-sm" onclick="clearHistoryCache()" data-i18n="btnClearCache">Clear local cache</button>
+     </div>
+     <div id="historyContent">
+      <p style="color:var(--text-muted);font-size:12px;" data-i18n="historyEmpty">Click Refresh to load history.</p>
+     </div>
+    </div>
+   </div>
   </div>
-
   <script>
     var SHEET_ID   = '10bgaGSin8ccRQVVHTMgQIoI8Kesqjtf_UKm6GJPLH2g';
     var SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbySHiIOvCeyeB7KePXA2L2u3Q2FyMSIlaNPB76k78Yp_AVT8Ah5f7PoiGwxdyEv9SZLcg/exec';
-    var SECRET_TOKEN = 'glg-slab-2024-xK9mPqR7';
     var LOGO_B64   = 'data:image/png;base64,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';
 
     // ─── TRANSLATIONS ────────────────────────────────────────────────────────
@@ -876,15 +828,7 @@
       if (submitSpan) { submitSpan.textContent = submittingMsg; }
       setStatus('info', submittingMsg);
 
-      var chain = Promise.resolve();
-      for (var k = 0; k < rows.length; k++) {
-        (function(row) {
-          row._token = SECRET_TOKEN;
-          chain = chain.then(function() { return iframePost(SCRIPT_URL, row); });
-        })(rows[k]);
-      }
-
-      chain.then(function() {
+      iframePost(SCRIPT_URL, { rows: rows }).then(function() {
         setStatus('success', t('submitOk').replace('{id}', orderId).replace('{n}', rows.length));
         submitEl.disabled = false;
         if (submitSpan) { submitSpan.textContent = t('submitBtn'); }
@@ -1163,5 +1107,5 @@
       el.textContent = msg;
     }
   </script>
-</body>
+ </body>
 </html>
